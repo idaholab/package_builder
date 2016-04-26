@@ -3,10 +3,11 @@ import os, sys, subprocess, argparse, time, datetime, re, shutil
 from tempfile import TemporaryFile
 
 # Pre-requirements that we are aware of that on some linux machines is not sometimes available by default:
-prereqs = ['bison', 'flex', 'git', 'curl', 'make']
+prereqs = ['bison', 'flex', 'git', 'curl', 'make', 'bc', 'patch', 'bzip2', 'uniq']
 
 def startJobs(args):
   (master_list, previous_progress) = getList()
+  version_template = getTemplate()
   active_jobs = []
   # Do these sets in order (for)
   for set_of_jobs in master_list:
@@ -26,7 +27,7 @@ def startJobs(args):
         if len(active_jobs) < int(args.max_jobs):
           if not any(x[1] == job for x in active_jobs):
             print '\tLaunching job', job
-            active_jobs.append(launchJob(job))
+            active_jobs.append(launchJob(version_template, job))
         else:
           # Max jobs reached, start checking for results
           break
@@ -85,7 +86,7 @@ def solveDEP(job_list):
     progress = progress.split('\n')
     progress.pop()
   for job in job_list:
-    job_file = open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'packages', job), 'r')
+    job_file = open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'template', job), 'r')
     job_contents = job_file.read()
     job_file.close()
     # Do the actual dependency subtraction here:
@@ -99,13 +100,35 @@ def solveDEP(job_list):
     dictionary_sets = dict(((key, value-temp_set) for key, value in dictionary_sets.items() if value))
   return (resolved_list, progress)
 
-def launchJob(module):
+def alterVersions(version_template, module):
+  if os.path.exists(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'packages')) is not True:
+    os.makedirs(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'packages'))
+  with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'template', module), 'r') as template_module:
+    tmp_str = template_module.read()
+  with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'packages', module), 'w') as batchfile:
+    for item in version_template.iteritems():
+      tmp_str = tmp_str.replace('<' + item[0] + '>', item[1])
+    batchfile.write(tmp_str)
+  os.chmod(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'packages', module), 0755)
+  return True
+
+def launchJob(version_template, module):
   t = TemporaryFile()
+  prepare_job = alterVersions(version_template, module)
   return (subprocess.Popen([os.path.join(os.path.abspath(os.path.dirname(__file__)), 'packages', module)], stdout=t, stderr=t, shell=True), module, t, time.time())
 
 def getList():
-  job_list = os.listdir(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'packages'))
+  job_list = os.listdir(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'template'))
   return solveDEP(job_list)
+
+def getTemplate():
+  version_template = {}
+  with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'version_template')) as template_file:
+    template = template_file.read()
+    for item in template.split('\n'):
+      if len(item):
+        version_template[item.split('=')[0]] = item.split('=')[1]
+  return version_template
 
 def verifyArgs(args):
   if args.prefix is None:

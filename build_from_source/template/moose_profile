@@ -1,0 +1,76 @@
+#!/bin/bash
+#############
+## Specifics
+##
+DEP=()
+PACKAGE='moose_profile'
+
+#####
+# Set the operating system allowed to build this module
+#
+ARCH=(Darwin Linux)
+
+#####
+# Setting any of these variables to 'false' effectively skips that step
+# This is useful for items like 'autojump' which requires a git clone/checkout
+DOWNLOAD='false'
+EXTRACT='false'
+CONFIGURE='false'
+BUILD='false'
+INSTALL='false'
+
+pre_run() {
+  return
+}
+
+post_run() {
+    mkdir -p $PACKAGES_DIR/environments
+    cat <<EOF > $PACKAGES_DIR/environments/moose_profile
+#!/bin/bash
+# Modules Source
+if [ -n "\$MODULEPATH" ]; then
+  export MODULEPATH=$PACKAGES_DIR/Modules/<MODULES>/modulefiles
+fi
+source $PACKAGES_DIR/Modules/<MODULES>/init/bash
+
+# MOOSE_PPS_WIDTH
+export MOOSE_PPS_WIDTH=180
+
+# Source the autojump profile if requested:
+if [ -n "\$MOOSE_JUMP" ]; then
+  source $PACKAGES_DIR/environments/autojump_profile
+fi
+
+# IF, anyone wants to use our prompt:
+if [ -n "\$MOOSE_PROMPT" ]; then
+  PS1="\[\033[1;34m\][\u]\[\033[1;32m\][\w]\[\033[0m\]> "
+fi
+
+# Set MOOSE_JOBS and Load appropiate modules for Arch
+if [ \`uname -s\` == 'Darwin' ]; then
+  export MOOSE_JOBS=\`/usr/sbin/sysctl -n hw.ncpu\`
+  module load moose-dev-clang moose-tools
+else
+  export MOOSE_JOBS=\`cat /proc/cpuinfo | grep processor | wc -l\`
+  module load moose-dev-gcc moose-tools
+fi
+EOF
+}
+##
+## End Specifics
+##############
+## The following script contains all the common functions.
+## Those functions are executed in the following order:
+
+# download
+# extract
+# pre-run
+# configure
+# make
+# make install
+# post_run
+# cleanup
+
+## pre_run and post_run are the only true specifics that are different
+## with every package
+source $RELATIVE_DIR/functions
