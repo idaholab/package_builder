@@ -31,7 +31,14 @@ extract() {
 	    cleanup 1
 	fi
     done
-    cd $(echo ${EXTRACT[0]} | sed -e 's/[^a-zA-z]/ /g' | cut -d\  -f1)*
+    # Lets hope the tarballs were created correctly
+    cd $(tar -tzf $DOWNLOAD_DIR/${EXTRACT[0]} | sed -e 's@/.*@@' | uniq)
+    if [ $? -ne 0 ]; then
+	echo -e 'Failed to determine which directory to `cd` into'
+	cleanup 1
+    else
+	echo -e 'Entered build directory: '`pwd`
+    fi
 }
 
 configure() {

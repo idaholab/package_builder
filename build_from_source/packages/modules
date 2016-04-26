@@ -86,13 +86,8 @@ EOF
 ##
 ##
 conflict moose-dev-gcc
-if { [uname sysname] != "Darwin" } {
-  module load moose/.openmpi-1.8.4_clang
-  module load moose/.openmpi_petsc-3.6.4-clang
-} else {
-  module load moose/.mpich-3.1.4_clang
-  module load moose/.mpich_petsc-3.6.4-clang
-} 
+module load moose/.mpich-3.1.4_clang
+module load moose/.mpich_petsc-3.6.4-clang
 module load moose/.vtk6-clang
 module load moose/.tbb44_20150728
 module load moose/.cppunit-1.12.1-clang
@@ -114,16 +109,12 @@ EOF
 ##
 conflict moose-dev-clang
 if { [uname sysname] != "Darwin" } {
-  module load moose/.openmpi-1.8.4_gcc
-  module load moose/.openmpi_petsc-3.6.4-gcc
   module load moose/.vtk6-gcc
-} else {
-  module load moose/.mpich-3.1.4_gcc
-  module load moose/.mpich_petsc-3.6.4-gcc
 }
+module load moose/.mpich-3.1.4_gcc
+module load moose/.mpich_petsc-3.6.4-gcc
 module load moose/.tbb44_20150728
 module load moose/.cppunit-1.12.1-gcc
-
 
 # If MOOSE_DIR is set, help the user out by prepending the moose/python path
 if { [ info exists ::env(MOOSE_DIR) ] } {
