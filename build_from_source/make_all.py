@@ -3,7 +3,7 @@ import os, sys, subprocess, argparse, time, datetime, re, shutil
 from tempfile import TemporaryFile
 
 # Pre-requirements that we are aware of that on some linux machines is not sometimes available by default:
-prereqs = ['bison', 'flex', 'git', 'curl', 'make']
+prereqs = ['bison', 'flex', 'git', 'curl', 'make', 'bc', 'patch', 'bzip2', 'uniq']
 
 def startJobs(args):
   (master_list, previous_progress) = getList()

@@ -33,7 +33,7 @@ pre_run() {
     fi
     PATH=$PACKAGES_DIR/miniconda/bin:$PATH conda update conda --yes
     if [ $? -ne 0 ]; then echo "Failed to update miniconda"; cleanup 1; fi
-    PATH=$PACKAGES_DIR/miniconda/bin:$PATH conda install coverage reportlab mako vtk pyyaml matplotlib pyside conda-build --yes
+    PATH=$PACKAGES_DIR/miniconda/bin:$PATH conda install coverage reportlab mako numpy scipy scikit-learn h5py hdf5 scikit-image requests vtk pyyaml matplotlib pyside conda-build --yes
     if [ $? -ne 0 ]; then echo "Failed to install miniconda packages"; cleanup 1; fi
 }
 post_run() {
