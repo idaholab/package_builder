@@ -14,7 +14,7 @@ ARCH=(Darwin Linux)
 # Setting any of these variables to 'false' effectively skips that step
 # This is useful for items like 'autojump' which requires a git clone/checkout
 DOWNLOAD='http://mooseframework.org/source_packages/<CMAKE>.tar.gz'
-EXTRACT='CMAKE.tar.gz'
+EXTRACT='<CMAKE>.tar.gz'
 CONFIGURE="./configure --prefix=$PACKAGES_DIR/$PACKAGE"
 BUILD='true'
 INSTALL='true'
