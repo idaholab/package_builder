@@ -39,6 +39,8 @@ def startJobs(args):
         output.seek(0)
         if process.poll():
           print output.read(), '\n\nError building', module
+          if args.keep_failed is not True:
+            deleteBuild(module)
           killRemaining(active_jobs)
           sys.exit(1)
         else:
@@ -146,6 +148,7 @@ def verifyArgs(args):
     print 'The path specified does not exist. Please create this path, and chown it appropriately before continuing'
     sys.exit(1)
   else:
+    args.prefix = args.prefix.rstrip(os.path.sep)
     try:
       test_writeable = open(os.path.join(args.prefix, 'test_write'), 'a')
       test_writeable.close()
