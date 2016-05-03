@@ -74,6 +74,9 @@ cleanup() {
     if [ $1 == 0 ]; then
 	echo 'Deleting temporary build location: '$src_temp
 	rm -rf $src_temp
+    elif [ ! -z "$KEEP_FAILED" ]; then
+	echo 'Error while working on: '$PACKAGE
+	rm -rf $src_temp
     else
 	echo 'Error while working on: '$PACKAGE' located at: '$src_temp
     fi
@@ -99,7 +102,7 @@ if [ $CONTINUE = true ]; then
     if [ $DOWNLOAD_ONLY == "True" ]; then
       download
     else
-      export src_temp=`mktemp -d /tmp/src_temp_$PACKAGE.XXXXXX`
+      export src_temp=`mktemp -d $TEMP_PREFIX/temp_package_builder_$PACKAGE.XXXXXX`
       cd $src_temp
       download
       extract

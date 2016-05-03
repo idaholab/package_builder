@@ -20,16 +20,20 @@ BUILD='false'
 INSTALL='false'
 
 pre_run() {
-    cd bin
-    sed -i '' -e 's/install -p -D/install/g' install.sh
-    mkdir -p $PACKAGES_DIR/lcov/usr/bin
-    mkdir -p $PACKAGES_DIR/lcov/etc
-    mkdir -p $PACKAGES_DIR/lcov/usr/share/man/man1
-    mkdir -p $PACKAGES_DIR/lcov/usr/share/man/man5
+    if [ -d $PACKAGES_DIR/$PACKAGE ]; then
+	rm -rf $PACKAGES_DIR/$PACKAGE
+    fi
+    return
 }
 post_run() {
+    cd bin
+    sed -i '' -e 's/install -p -D/install/g' install.sh
+    mkdir -p $PACKAGES_DIR/$PACKAGE/usr/bin
+    mkdir -p $PACKAGES_DIR/$PACKAGE/etc
+    mkdir -p $PACKAGES_DIR/$PACKAGE/usr/share/man/man1
+    mkdir -p $PACKAGES_DIR/$PACKAGE/usr/share/man/man5
     cd ../
-    PREFIX=$PACKAGES_DIR/lcov make install
+    PREFIX=$PACKAGES_DIR/$PACKAGE make install
 }
 ##
 ## End Specifics

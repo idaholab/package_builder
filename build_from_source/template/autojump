@@ -20,6 +20,9 @@ BUILD='false'
 INSTALL='false'
 
 pre_run() {
+    if [ -d $PACKAGES_DIR/autojump ]; then
+      rm -rf $PACKAGES_DIR/autojump
+    fi
     cd $1
     git clone https://github.com/joelthelion/autojump.git
     cd autojump

@@ -20,6 +20,9 @@ BUILD='true'
 INSTALL='true'
 
 pre_run() {
+    if [ -d $PACKAGES_DIR/$PACKAGE ]; then
+	rm -rf $PACKAGES_DIR/$PACKAGE
+    fi
     return
 }
 post_run() {

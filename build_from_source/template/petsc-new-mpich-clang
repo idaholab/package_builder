@@ -43,6 +43,9 @@ BUILD='false'
 INSTALL='false'
 
 pre_run() {
+    if [ -d $PACKAGES_DIR/petsc/mpich_<PETSC_NEW>/clang-opt-superlu ]; then
+	rm -rf $PACKAGES_DIR/petsc/mpich_<PETSC_NEW>/clang-opt-superlu
+    fi
     unset MODULEPATH
     source $PACKAGES_DIR/Modules/<MODULES>/init/bash
     module load advanced_modules cmake mpich-clang

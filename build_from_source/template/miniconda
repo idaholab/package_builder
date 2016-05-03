@@ -24,23 +24,26 @@ BUILD='false'
 INSTALL='false'
 
 pre_run() {
-    if [ `uname` = "Darwin" ]; then
-	bash $DOWNLOAD_DIR/<MINICONDA>-MacOSX-x86_64.sh -b -p $PACKAGES_DIR/miniconda
-	if [ $? -ne 0 ]; then echo "Failed to install miniconda"; cleanup 1; fi
-    else
-	bash $DOWNLOAD_DIR/<MINICONDA>-Linux-x86_64.sh -b -p $PACKAGES_DIR/miniconda
-	if [ $? -ne 0 ]; then echo "Failed to install miniconda"; cleanup 1; fi
+    if [ -d $PACKAGES_DIR/$PACKAGE ]; then
+	rm -rf $PACKAGES_DIR/$PACKAGE
     fi
-    PATH=$PACKAGES_DIR/miniconda/bin:$PATH conda update conda --yes
-    if [ $? -ne 0 ]; then echo "Failed to update miniconda"; cleanup 1; fi
-    PATH=$PACKAGES_DIR/miniconda/bin:$PATH conda install coverage reportlab mako numpy scipy scikit-learn h5py hdf5 scikit-image requests vtk pyyaml matplotlib pyside conda-build --yes
-    if [ $? -ne 0 ]; then echo "Failed to install miniconda packages"; cleanup 1; fi
+    if [ `uname` = "Darwin" ]; then
+	bash $DOWNLOAD_DIR/<MINICONDA>-MacOSX-x86_64.sh -b -p $PACKAGES_DIR/$PACKAGE
+	if [ $? -ne 0 ]; then echo "Failed to install $PACKAGE"; cleanup 1; fi
+    else
+	bash $DOWNLOAD_DIR/<MINICONDA>-Linux-x86_64.sh -b -p $PACKAGES_DIR/$PACKAGE
+	if [ $? -ne 0 ]; then echo "Failed to install $PACKAGE"; cleanup 1; fi
+    fi
+    PATH=$PACKAGES_DIR/$PACKAGE/bin:$PATH conda update conda --yes
+    if [ $? -ne 0 ]; then echo "Failed to update $PACKAGE"; cleanup 1; fi
+    PATH=$PACKAGES_DIR/$PACKAGE/bin:$PATH conda install coverage reportlab mako numpy scipy scikit-learn h5py hdf5 scikit-image requests vtk pyyaml matplotlib pyside conda-build --yes
+    if [ $? -ne 0 ]; then echo "Failed to install $PACKAGE packages"; cleanup 1; fi
 }
 post_run() {
-    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/modulefiles/miniconda
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/modulefiles/$PACKAGE
 #%Module1.0#####################################################################
 ##
-## Miniconda Module
+## $PACKAGE Module
 ##
 ##
 ##
@@ -48,10 +51,10 @@ set             BASE_PATH        $PACKAGES_DIR
 
 # Miniconda/Peacock
 setenv          QT_API           pyside
-prepend-path    PATH             \$BASE_PATH/miniconda/bin
+prepend-path    PATH             \$BASE_PATH/$PACKAGE/bin
 EOF
-    PATH=$PACKAGES_DIR/miniconda/bin:$PATH conda clean --lock --tarballs --index-cache --packages --source-cache --yes
-    rm -rf $PACKAGES_DIR/miniconda/pkgs/*
+    PATH=$PACKAGES_DIR/$PACKAGE/bin:$PATH conda clean --lock --tarballs --index-cache --packages --source-cache --yes
+    rm -rf $PACKAGES_DIR/$PACKAGE/pkgs/*
     
 }
 ##

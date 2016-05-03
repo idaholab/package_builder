@@ -44,6 +44,9 @@ BUILD='false'
 INSTALL='false'
 
 pre_run() {
+    if [ -d $PACKAGES_DIR/petsc/openmpi_<PETSC_OLD>/gcc-opt-superlu ]; then
+	rm -rf $PACKAGES_DIR/petsc/openmpi_<PETSC_OLD>/gcc-opt-superlu
+    fi
     unset MODULEPATH
     source $PACKAGES_DIR/Modules/<MODULES>/init/bash
     module load advanced_modules cmake openmpi-gcc

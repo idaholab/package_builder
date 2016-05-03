@@ -68,7 +68,7 @@ diff -ru a/config/BuildSystem/config/packages/MPI.py b/config/BuildSystem/config
        buf = self.outputPreprocess(mpich_test)
 -      mpich_numversion = re.compile('\nint mpich_ver = *([0-9]*) *;').search(buf).group(1)
 +      #mpich_numversion = re.compile('\nint mpich_ver = *([0-9]*) *;').search(buf).group(1)
-+      mpich_numversion = '30104300'
++      mpich_numversion = '30200300'
        self.addDefine('HAVE_MPICH_NUMVERSION',mpich_numversion)
      elif self.checkCompile(openmpi_test):
        buf = self.outputPreprocess(openmpi_test)

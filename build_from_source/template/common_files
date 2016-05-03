@@ -24,9 +24,9 @@ pre_run() {
 }
 
 post_run() {
-for sfile in `ls $RELATIVE_DIR/../common_files`; do 
-  cp -R $RELATIVE_DIR/../common_files/$sfile $PACKAGES_DIR
-done
+  for sfile in `ls $RELATIVE_DIR/../common_files`; do
+    cp -R $RELATIVE_DIR/../common_files/$sfile $PACKAGES_DIR
+  done
 }
 ##
 ## End Specifics

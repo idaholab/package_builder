@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-import os, sys, subprocess, argparse, time, datetime, re, shutil
-from tempfile import TemporaryFile
+import os, sys, subprocess, argparse, time, datetime, re, shutil, tempfile
 
 # Pre-requirements that we are aware of that on some linux machines is not sometimes available by default:
 prereqs = ['bison', 'flex', 'git', 'curl', 'make', 'bc', 'patch', 'bzip2', 'uniq']
@@ -40,7 +39,6 @@ def startJobs(args):
         output.seek(0)
         if process.poll():
           print output.read(), '\n\nError building', module
-          print 'Attempting to kill any other module jobs.\nThis will unfortunately leave junk located in /tmp/src_temp_*'
           killRemaining(active_jobs)
           sys.exit(1)
         else:
@@ -59,23 +57,32 @@ def spinwait(jobs):
     time.sleep(0.07)
     return
   except KeyboardInterrupt:
-    print 'CTRL-C, Exiting...'
+    print '\nCTRL-C, Exiting...'
+    killRemaining(jobs)
     sys.exit(1)
 
 def killRemaining(process_list):
-  # Loop through all jobs and kill send SIGKILL
+  # Loop through all active jobs and send SIGKILL
+  # then try and clean up the mess afterwards
   for job, module, output, delta in process_list:
     try:
+      print 'Attempting to kill job:', module
       job.kill()
+      deleteBuild(module)
     except:
       # we really don't care about failures at this point
       pass
   return
 
+def deleteBuild(module):
+  for item_list in os.listdir(tempfile.gettempdir()):
+    if item_list.find(module) != -1:
+      print 'deleting temporary build directory:', tempfile.gettempdir() + os.path.sep + item_list
+      shutil.rmtree(tempfile.gettempdir() + os.path.sep + item_list, ignore_errors=True)
+
 def solveDEP(job_list):
   progress = []
   resolved_list = []
-  master_list = []
   dependency_dict = {}
   # If a previous build detected, figure out which dependencies are no longer required
   if os.path.exists(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'progress')):
@@ -101,19 +108,20 @@ def solveDEP(job_list):
   return (resolved_list, progress)
 
 def alterVersions(version_template, module):
-  if os.path.exists(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'packages')) is not True:
-    os.makedirs(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'packages'))
+  packages_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'packages')
+  if os.path.exists(packages_path) is not True:
+    os.makedirs(packages_path)
   with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'template', module), 'r') as template_module:
     tmp_str = template_module.read()
-  with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'packages', module), 'w') as batchfile:
+  with open(os.path.join(packages_path, module), 'w') as batchfile:
     for item in version_template.iteritems():
       tmp_str = tmp_str.replace('<' + item[0] + '>', item[1])
     batchfile.write(tmp_str)
-  os.chmod(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'packages', module), 0755)
+  os.chmod(os.path.join(packages_path, module), 0755)
   return True
 
 def launchJob(version_template, module):
-  t = TemporaryFile()
+  t = tempfile.TemporaryFile()
   prepare_job = alterVersions(version_template, module)
   return (subprocess.Popen([os.path.join(os.path.abspath(os.path.dirname(__file__)), 'packages', module)], stdout=t, stderr=t, shell=True), module, t, time.time())
 
@@ -169,7 +177,9 @@ def parseArguments(args=None):
   parser.add_argument('-m', '--max-jobs', default='2', help='Specify max modules to run simultaneously')
   parser.add_argument('-j', '--cpu-count', default='4', help='Specify CPU count (used when make -j <number>)')
   parser.add_argument('-d', '--delete-downloads', action='store_const', const=True, default=False, help='Delete downloads when successful build completes?')
+  parser.add_argument('--new-build', action='store_const', const=True, default=False, help='Start with a new build')
   parser.add_argument('--download-only', action='store_const', const=True, default=False, help='Download files used in created the package only')
+  parser.add_argument('--keep-failed', action='store_const', const=True, default=False, help='Keep failed builds temporary directory')
   return verifyArgs(parser.parse_args(args))
 
 if __name__ == '__main__':
@@ -181,19 +191,32 @@ if __name__ == '__main__':
     print 'The following missing binaries would prevent some of the modules from building:', '\n\t', " ".join(missing)
     sys.exit(1)
   args = parseArguments()
+  download_directory = tempfile.gettempdir() + os.path.sep + 'moose_package_download_temp'
   os.environ['RELATIVE_DIR'] = os.path.join(os.path.abspath(os.path.dirname(__file__)))
-  os.environ['DOWNLOAD_DIR'] = '/tmp/moose_package_download_temp'
+  os.environ['DOWNLOAD_DIR'] = download_directory
+
   if args.download_only:
-    print 'Downloads will be saved to: /tmp/moose_package_download_temp'
+    print 'Downloads will be saved to:', download_directory
     os.environ['DOWNLOAD_ONLY'] = 'True'
   else:
     os.environ['DOWNLOAD_ONLY'] = 'False'
+
+  if args.keep_failed:
+    os.environ['KEEP_FAILED'] = 'False'
+
+  if args.new_build:
+    if os.path.exists(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'progress')):
+      print 'removing progress file, and started from scratch'
+      os.remove(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'progress'))
+
+
   os.environ['PACKAGES_DIR'] = args.prefix
   os.environ['MOOSE_JOBS'] = args.cpu_count
   os.environ['MAX_JOBS'] = args.max_jobs
+  os.environ['TEMP_PREFIX'] = tempfile.gettempdir()
   os.environ['DEBUG'] = 'false'
-  if not os.path.exists('/tmp/moose_package_download_temp'):
-    os.makedirs('/tmp/moose_package_download_temp')
+  if not os.path.exists(download_directory):
+    os.makedirs(download_directory)
   start_time = time.time()
   if startJobs(args):
     print 'All packages built.\nTotal execution time:', str(datetime.timedelta(seconds=int(time.time()) - int(start_time)))

@@ -20,6 +20,9 @@ BUILD='true'
 INSTALL='true'
 
 pre_run() {
+    if [ -d $PACKAGES_DIR/<LLVM> ]; then
+	rm -rf $PACKAGES_DIR/<LLVM>
+    fi
     cd ../
     mv <LLVM>.src llvm
     if [ $? -ne 0 ]; then echo "Failed to move <LLVM>.src"; cleanup 1; fi

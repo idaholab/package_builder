@@ -20,6 +20,9 @@ BUILD='true'
 INSTALL='true'
 
 pre_run() {
+    if [ -d $PACKAGES_DIR/mpich/<MPICH>/clang-opt ]; then
+	rm -rf $PACKAGES_DIR/mpich/<MPICH>/clang-opt
+    fi
     mkdir clang-opt; cd clang-opt
     unset MODULEPATH
     source $PACKAGES_DIR/Modules/<MODULES>/init/bash
