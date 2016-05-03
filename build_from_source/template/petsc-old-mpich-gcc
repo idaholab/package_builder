@@ -1,0 +1,167 @@
+#!/bin/bash
+#############
+## Specifics
+##
+DEP=(modules cmake gcc mpich-gcc)
+PACKAGE='<PETSC_OLD>-mpich-gcc'
+
+#####
+# Set the operating system allowed to build this module
+#
+ARCH=(Darwin Linux)
+
+#####
+# Setting any of these variables to 'false' effectively skips that step
+# This is useful for items like 'autojump' which requires a git clone/checkout
+DOWNLOAD='http://mooseframework.org/source_packages/<PETSC_OLD>.tar.gz'
+EXTRACT='<PETSC_OLD>.tar.gz'
+CONFIGURE="./configure \
+--prefix=$PACKAGES_DIR/petsc/mpich_<PETSC_OLD>/gcc-opt-superlu \
+--download-hypre=1 \
+--with-ssl=0 \
+--with-debugging=no \
+--with-pic=1 \
+--with-shared-libraries=1 \
+--with-cc=mpicc \
+--with-cxx=mpicxx \
+--with-fc=mpif90 \
+--download-fblaslapack=1 \
+--download-metis=1 \
+--download-parmetis=1 \
+--download-superlu_dist=1 \
+--download-mumps=1 \
+--download-scalapack=1 \
+CC=mpicc CXX=mpicxx FC=mpif90 F77=mpif77 F90=mpif90 \
+CFLAGS='-fPIC -fopenmp' \
+CXXFLAGS='-fPIC -fopenmp' \
+FFLAGS='-fPIC -fopenmp' \
+FCFLAGS='-fPIC -fopenmp' \
+F90FLAGS='-fPIC -fopenmp' \
+F77FLAGS='-fPIC -fopenmp'"
+
+BUILD='false'
+INSTALL='false'
+
+pre_run() {
+    if [ -d $PACKAGES_DIR/petsc/mpich_<PETSC_OLD>/gcc-opt-superlu ]; then
+	rm -rf $PACKAGES_DIR/petsc/mpich_<PETSC_OLD>/gcc-opt-superlu
+    fi
+    unset MODULEPATH
+    source $PACKAGES_DIR/Modules/<MODULES>/init/bash
+    module load advanced_modules cmake mpich-gcc
+}
+
+post_run() {
+    if [ `uname` = "Darwin" ]; then
+	make PETSC_DIR=$1/<PETSC_OLD> PETSC_ARCH=arch-darwin-c-opt all
+	if [ $? -ne 0 ]; then echo "Error while building PETSc"; cleanup 1; fi
+	make PETSC_DIR=$1/<PETSC_OLD> PETSC_ARCH=arch-darwin-c-opt install
+	if [ $? -ne 0 ]; then echo "Error while installing PETSc"; cleanup 1; fi
+    else
+	make PETSC_DIR=$1/<PETSC_OLD> PETSC_ARCH=arch-linux2-c-opt all
+	if [ $? -ne 0 ]; then echo "Error while building PETSc"; cleanup 1; fi
+	make PETSC_DIR=$1/<PETSC_OLD> PETSC_ARCH=arch-linux2-c-opt install
+	if [ $? -ne 0 ]; then echo "Error while installing PETSc"; cleanup 1; fi
+    fi
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/modulefiles/moose/.mpich_<PETSC_OLD>-gcc
+#%Module1.0#####################################################################
+##
+## MPICH GCC <PETSC_OLD> superlu modulefile
+##
+##
+##
+set         BASE_PATH        $PACKAGES_DIR
+setenv      PETSC_DIR        \$BASE_PATH/petsc/mpich_<PETSC_OLD>/gcc-opt-superlu
+EOF
+    cd $PACKAGES_DIR/Modules/<MODULES>/mpich_gcc
+    ln -s ../modulefiles/moose/.mpich_<PETSC_OLD>-gcc <PETSC_OLD>
+
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-gcc-petsc_old-vtk-trilinos-opt
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_OLD>
+## <GCC>
+## <MPICH>
+## <VTK>
+## <TRILINOS>
+##
+module load moose/.<MPICH>_gcc
+module load moose/.mpich_<PETSC_OLD>-gcc
+module load moose/.<VTK>-gcc
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-gcc
+module load moose/.mpich_<TRILINOS>-gcc-opt
+
+EOF
+
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-gcc-petsc_old-vtk-trilinos-dbg
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_OLD>
+## <GCC>
+## <MPICH>
+## <VTK>
+## <TRILINOS>
+##
+module load moose/.<MPICH>_GCC
+module load moose/.mpich_<PETSC_OLD>-gcc
+module load moose/.<VTK>-gcc
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-gcc
+module load moose/.mpich_<TRILINOS>-gcc-dbg
+
+EOF
+
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-gcc-petsc_old-vtk
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_OLD>
+## <GCC>
+## <MPICH>
+## <VTK>
+##
+module load moose/.<MPICH>_gcc
+module load moose/.mpich_<PETSC_OLD>-gcc
+module load moose/.<VTK>-gcc
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-gcc
+
+EOF
+
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-gcc-petsc_old
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_OLD>
+## <GCC>
+## <MPICH>
+##
+module load moose/.<MPICH>_gcc
+module load moose/.mpich_<PETSC_OLD>-gcc
+module load moose/.<VTK>-gcc
+module load moose/.<CPPUNIT>-gcc
+
+EOF
+}
+
+##
+## End Specifics
+##############
+## The following script contains all the common functions.
+## Those functions are executed in the following order:
+
+# download
+# extract
+# pre-run `pwd`
+# configure
+# make
+# make install
+# post_run `pwd`
+# cleanup
+
+## pre_run and post_run are the only true specifics that are different
+## with every package
+source $RELATIVE_DIR/functions

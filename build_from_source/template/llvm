@@ -1,0 +1,122 @@
+#!/bin/bash
+#############
+## Specifics
+##
+DEP=(modules miniconda cmake gcc)
+PACKAGE='llvm'
+
+#####
+# Set the operating system allowed to build this module
+#
+ARCH=(Darwin Linux)
+
+#####
+# Setting any of these variables to 'false' effectively skips that step
+# This is useful for items like 'autojump' which requires a git clone/checkout
+DOWNLOAD=(http://mooseframework.org/source_packages/<LLVM>.src.tar.xz http://mooseframework.org/source_packages/<CFE>.src.tar.xz http://mooseframework.org/source_packages/<COMPILER_RT>.src.tar.xz http://mooseframework.org/source_packages/<LIBCXX>.src.tar.xz http://mooseframework.org/source_packages/<LIBCXXABI>.src.tar.xz http://mooseframework.org/source_packages/<OPENMP>.src.tar.xz http://mooseframework.org/source_packages/<CLANG_TOOLS_EXTRA>.src.tar.xz)
+EXTRACT=(<LLVM>.src.tar.xz <CFE>.src.tar.xz <COMPILER_RT>.src.tar.xz <LIBCXX>.src.tar.xz <LIBCXXABI>.src.tar.xz <OPENMP>.src.tar.xz <CLANG_TOOLS_EXTRA>.src.tar.xz)
+CONFIGURE="cmake -DCMAKE_INSTALL_RPATH:STRING=$PACKAGES_DIR/<LLVM>/lib -DCLANG_DEFAULT_OPENMP_RUNTIME=libomp -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PACKAGES_DIR/<LLVM> -DCMAKE_INSTALL_NAME_DIR:STRING=$PACKAGES_DIR/<LLVM>/lib -DCMAKE_MACOSX_RPATH:BOOL=OFF ../llvm"
+BUILD='true'
+INSTALL='true'
+
+pre_run() {
+    if [ -d $PACKAGES_DIR/<LLVM> ]; then
+	rm -rf $PACKAGES_DIR/<LLVM>
+    fi
+    cd ../
+    mv <LLVM>.src llvm
+    if [ $? -ne 0 ]; then echo "Failed to move <LLVM>.src"; cleanup 1; fi
+    mv <CFE>.src llvm/tools/clang
+    if [ $? -ne 0 ]; then echo "Failed to move <CFE>.src"; cleanup 1; fi
+    mv <COMPILER_RT>.src llvm/projects/compiler-rt
+    if [ $? -ne 0 ]; then echo "Failed to move <COMPILER_RT>.src"; cleanup 1; fi
+    mv <LIBCXX>.src llvm/projects/libcxx
+    if [ $? -ne 0 ]; then echo "Failed to move <LIBCXX>.src"; cleanup 1; fi
+    mv <LIBCXXABI>.src llvm/projects/libcxxabi
+    if [ $? -ne 0 ]; then echo "Failed to move <LIBCXXABI>.src"; cleanup 1; fi
+    mv <OPENMP>.src llvm/projects/openmp
+    if [ $? -ne 0 ]; then echo "Failed to move <OPENMP>.src"; cleanup 1; fi
+    mv <CLANG_TOOLS_EXTRA>.src llvm/tools/clang/tools/extra
+    if [ $? -ne 0 ]; then echo "Failed to move <CLANG_TOOLS_EXTRA>.src"; cleanup 1; fi
+    mkdir build; cd build
+    echo -e 'Done'
+    unset MODULEPATH
+    source $PACKAGES_DIR/Modules/<MODULES>/init/bash
+    module load advanced_modules cmake miniconda
+    if [ `uname` != "Darwin" ]; then
+      module load gcc
+      export CC=gcc; export CXX=g++
+    fi
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/modulefiles/moose/.<CLANG>
+#%Module1.0#####################################################################
+##
+## <CLANG> modulefile
+##
+##
+##
+set             BASE_PATH          $PACKAGES_DIR
+
+module load moose/.<GCC>
+
+if { [uname sysname] != "Darwin" } {
+  prepend-path    LD_LIBRARY_PATH    \$BASE_PATH/<LLVM>/lib
+}
+
+prepend-path    PATH                          \$BASE_PATH/<LLVM>/bin
+
+# Needed for OpenMP
+prepend-path    LIBRARY_PATH                  \$BASE_PATH/<LLVM>/lib
+
+setenv          CC                            clang
+setenv          CXX                           clang++
+EOF
+}
+
+post_run() {
+    cd $PACKAGES_DIR/Modules/<MODULES>/adv_modules
+    ln -s ../modulefiles/moose/.<CLANG> clang
+    if [ `uname` = "Darwin" ]; then
+	cat <<'EOF' > $PACKAGES_DIR/<LLVM>/lib/change_links.sh
+#!/bin/bash
+for sfile in `ls | grep dylib`; do
+  if ! [ -L $sfile ]; then
+    if [ `otool -L $sfile | grep -c rpath` -ge 1 ]; then 
+      rpaths=($(otool -L $sfile | grep rpath | cut -f 1 -d\  ))
+      echo "Changing id: `pwd`/$sfile"
+      install_name_tool -id `pwd`/$sfile `pwd`/$sfile
+      for link in ${rpaths[*]}; do
+        echo "$link $sfile"
+        if [ `echo $link | grep -c $sfile` -le 0 ]; then
+          orig_link=$link
+          fixed_link=$(echo $link | sed -e 's?@rpath?'`pwd`'?g')
+          echo "install_name_tool -change $orig_link $fixed_link $sfile"
+          install_name_tool -change $orig_link $fixed_link $sfile
+        fi
+      done
+    fi
+  fi
+done
+EOF
+	  cd $PACKAGES_DIR/<LLVM>/lib/
+	  sh change_links.sh
+	  rm -f change_links.sh
+    fi
+}
+##
+## End Specifics
+##############
+## The following script contains all the common functions.
+## Those functions are executed in the following order:
+
+# download
+# extract
+# pre-run
+# configure
+# make
+# make install
+# post_run
+# cleanup
+
+## pre_run and post_run are the only true specifics that are different
+## with every package
+source $RELATIVE_DIR/functions

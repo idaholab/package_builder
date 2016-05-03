@@ -1,0 +1,147 @@
+#!/bin/bash
+#############
+## Specifics
+##
+DEP=(tcl)
+PACKAGE='modules'
+
+#####
+# Set the operating system allowed to build this module
+#
+ARCH=(Darwin Linux)
+
+#####
+# Setting any of these variables to 'false' effectively skips that step
+# This is useful for items like 'autojump' which requires a git clone/checkout
+DOWNLOAD='http://mooseframework.org/source_packages/modules-<MODULES>.tar.gz'
+EXTRACT='modules-<MODULES>.tar.gz'
+if [ `uname` = "Darwin" ]; then
+    CONFIGURE="./configure --prefix=$PACKAGES_DIR"
+else
+    CONFIGURE="CPPFLAGS=-DUSE_INTERP_ERRORLINE ./configure --prefix=$PACKAGES_DIR"
+fi
+BUILD='true'
+INSTALL='true'
+
+pre_run() {
+    if [ -d $PACKAGES_DIR/Modules ]; then
+	rm -rf $PACKAGES_DIR/Modules
+    fi
+    return
+}
+post_run() {
+    mkdir -p $PACKAGES_DIR/Modules/<MODULES>/adv_modules
+    mkdir -p $PACKAGES_DIR/Modules/<MODULES>/openmpi_clang
+    mkdir -p $PACKAGES_DIR/Modules/<MODULES>/openmpi_gcc
+    mkdir -p $PACKAGES_DIR/Modules/<MODULES>/mpich_clang
+    mkdir -p $PACKAGES_DIR/Modules/<MODULES>/mpich_gcc
+    mkdir -p $PACKAGES_DIR/Modules/<MODULES>/civet
+    mkdir -p $PACKAGES_DIR/Modules/<MODULES>/modulefiles/moose
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/modulefiles/advanced_modules
+#%Module1.0#####################################################################
+##
+## MOOSE extended modules
+##
+##
+set          BASE_PATH  $PACKAGES_DIR
+prepend-path MODULEPATH \$BASE_PATH/Modules/<MODULES>/adv_modules
+EOF
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/modulefiles/moose-tools
+#%Module1.0#####################################################################
+##
+## MOOSE Tools Module
+##
+##
+##
+set             BASE_PATH        $PACKAGES_DIR
+
+# SEACAS (insternally used)
+if { [uname sysname] != "Darwin" } {
+  prepend-path  LD_LIBRARY_PATH  \$BASE_PATH/seacas/lib
+}
+prepend-path    PATH             \$BASE_PATH/seacas/bin:$BASE_PATH/seacas/etc
+prepend-path    MANPATH          \$BASE_PATH/seacas/share/man
+setenv          ACCESS           \$BASE_PATH/seacas
+
+
+# Binary PATH for Doxygen / Graphviz / Lcov / GNUPlot
+prepend-path    PATH             \$BASE_PATH/doxygen/bin
+prepend-path    PATH             \$BASE_PATH/graphviz/bin
+prepend-path    PATH             \$BASE_PATH/lcov/usr/bin
+prepend-path    PATH             \$BASE_PATH/gnuplot/bin
+
+# MAN Pages for Doxygen / Graphviz / Lcov / GNUPlot
+prepend-path    MANPATH          \$BASE_PATH/doxygen/man
+prepend-path    MANPATH          \$BASE_PATH/graphviz/share/man
+prepend-path    MANPATH          \$BASE_PATH/lcov/usr/share/man
+prepend-path    MANPATH          \$BASE_PATH/gnuplot/share/man
+
+# Load miniconda (enables Peacock)
+module load miniconda
+
+EOF
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/modulefiles/moose-dev-clang
+#%Module1.0#####################################################################
+##
+## Clang MOOSE DEV Module
+##
+##
+##
+conflict moose-dev-gcc
+module load moose/.<MPICH>_clang
+module load moose/.mpich_<PETSC_NEW>-clang
+module load moose/.<VTK>-clang
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-clang
+
+# If MOOSE_DIR is set, help the user out by prepending the moose/python path
+if { [ info exists ::env(MOOSE_DIR) ] } {
+  eval set [ array get env MOOSE_DIR ]
+  if [ file isdirectory \$MOOSE_DIR/python ] {
+    prepend-path PYTHONPATH \$MOOSE_DIR/python
+  }
+}
+EOF
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/modulefiles/moose-dev-gcc
+#%Module1.0#####################################################################
+##
+## GCC MOOSE DEV Module
+##
+##
+##
+conflict moose-dev-clang
+if { [uname sysname] != "Darwin" } {
+  module load moose/.<VTK>-gcc
+}
+module load moose/.<MPICH>_gcc
+module load moose/.mpich_<PETSC_NEW>-gcc
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>
+
+# If MOOSE_DIR is set, help the user out by prepending the moose/python path
+if { [ info exists ::env(MOOSE_DIR) ] } {
+  eval set [ array get env MOOSE_DIR ]
+  if [ file isdirectory \$MOOSE_DIR/python ] {
+    prepend-path PYTHONPATH \$MOOSE_DIR/python
+  }
+}
+EOF
+}
+##
+## End Specifics
+##############
+## The following script contains all the common functions.
+## Those functions are executed in the following order:
+
+# download
+# extract
+# pre-run
+# configure
+# make
+# make install
+# post_run
+# cleanup
+
+## pre_run and post_run are the only true specifics that are different
+## with every package
+source $RELATIVE_DIR/functions

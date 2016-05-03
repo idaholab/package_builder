@@ -1,0 +1,82 @@
+#!/bin/bash
+#############
+## Specifics
+##
+DEP=(modules automake autoconf)
+PACKAGE='gcc'
+
+#####
+# Set the operating system allowed to build this module
+#
+ARCH=(Darwin Linux)
+
+#####
+# Setting any of these variables to 'false' effectively skips that step
+# This is useful for items like 'autojump' which requires a git clone/checkout
+DOWNLOAD='http://mooseframework.org/source_packages/<GCC>.tar.gz'
+EXTRACT='<GCC>.tar.gz'
+CONFIGURE="../<GCC>/configure --prefix=$PACKAGES_DIR/<GCC> --disable-multilib --enable-languages=c,c++,fortran --enable-lto"
+BUILD='true'
+INSTALL='true'
+
+pre_run() {
+    unset MODULEPATH
+    source $PACKAGES_DIR/Modules/<MODULES>/init/bash
+    module load advanced_modules autotools
+    sed -i -e 's/wget/curl -O/g' contrib/download_prerequisites
+    ./contrib/download_prerequisites
+    if [ $? -ne 0 ]; then echo 'Failed to download prerequisites'; cleanup 1; fi
+    mkdir ../gcc_build; cd ../gcc_build
+}
+
+post_run() {
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/modulefiles/moose/.<GCC>
+#%Module1.0#####################################################################
+##
+## <GCC> modulefile
+##
+##
+##
+set          BASE_PATH          $PACKAGES_DIR
+set          GCC_PATH           \$BASE_PATH/<GCC>
+
+if { [uname sysname] != "Darwin" } {
+  prepend-path LD_LIBRARY_PATH  \$GCC_PATH/lib64:\$GCC_PATH/lib:\$GCC_PATH/lib/i386
+}
+
+prepend-path PATH                        \$GCC_PATH/bin
+prepend-path MANPATH                     \$GCC_PATH/share/man
+
+setenv       GCC_BIN                     \$GCC_PATH/bin
+setenv       GCC_LIB                     \$GCC_PATH/lib:\$GCC_PATH/lib/i386
+setenv       GCC_MAN                     \$GCC_PATH/share/man
+EOF
+    cd $PACKAGES_DIR/Modules/<MODULES>/adv_modules
+    ln -s ../modulefiles/moose/.<GCC> gcc
+    module load gcc
+    cd $GCC_BIN/../
+    for sfile in `find . -type f -name "*.la"`; do
+	if [ `grep -c "$src_temp" $sfile` -ge 1 ]; then
+	    echo 'editing file: '$sfile
+	    perl -pi -e "s/-L.\S*build\S*[^'\s+]//g" $sfile
+	fi
+    done
+}
+##
+## End Specifics
+##############
+## The following script contains all the common functions.
+## Those functions are executed in the following order:
+
+# download
+# extract
+# pre-run
+# configure
+# make
+# make install
+# post_run
+# cleanup
+
+## pre_run and post_run are the only true specifics that are different
+## with every package
+source $RELATIVE_DIR/functions

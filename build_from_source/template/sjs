@@ -1,0 +1,82 @@
+#!/bin/bash
+#############
+## Specifics
+##
+DEP=(modules)
+PACKAGE='sjs'
+
+#####
+# Set the operating system allowed to build this module
+#
+ARCH=(Darwin Linux)
+
+#####
+# Setting any of these variables to 'false' effectively skips that step
+# This is useful for items like 'autojump' which requires a git clone/checkout
+DOWNLOAD='false'
+EXTRACT='false'
+CONFIGURE='false'
+BUILD='false'
+INSTALL='false'
+
+pre_run() {
+    if [ -d $PACKAGES_DIR/$PACKAGE ]; then
+	rm -rf $PACKAGES_DIR/$PACKAGE
+    fi
+    cd $PACKAGES_DIR
+    git clone https://github.com/milljm/sjs.git
+    cd sjs
+    git checkout pbs
+    rm -rf .git
+}
+post_run() {
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/adv_modules/pbs-emulator
+#%Module1.0#####################################################################
+##
+##  PBS Emulator module
+##
+##
+##
+
+set            BASE_PATH $PACKAGES_DIR
+
+proc ModulesHelp { } {
+        puts stderr "PBS Emulator allows one to simulate a job scheduling environment."
+        puts stderr "After loading this module, you must set the number of slots"
+        puts stderr "available (NOTE: use only 1 slot! This emulator is a _very_ poor"
+        puts stderr "job scheduler. Increase at your own risk!)"
+        puts stderr "\nExample:\n\n\tqconf init 1\n"
+        puts stderr "Once the module has been loaded and the above qconf command"
+        puts stderr "has been executed, you will have access to several PBS tools:\n\n\tqsub\n\tqstat\n\tqrun\n\tqdel"
+        puts stderr "\nThis emulator stores job states in a database located at: /tmp/sjs"
+        puts stderr "Due to the nature of why we need an emulator to test things, things"
+        puts stderr "will eventually go wrong. When they do, delete this directory and"
+        puts stderr "re-run the qconf init 1 command to re-initialize the PBS database.\n"
+}
+
+prepend-path   PATH     \$BASE_PATH/sjs/links
+setenv         SJS_ROOT /tmp/sjs
+if { ! [ file isdirectory /tmp/sjs ] } {
+    puts stderr "You must now initialize the PBS database (qconf init 1)"
+    puts stderr "See help for more information: module help pbs-emulator\n"
+}
+EOF
+}
+##
+## End Specifics
+##############
+## The following script contains all the common functions.
+## Those functions are executed in the following order:
+
+# download
+# extract
+# pre-run
+# configure
+# make
+# make install
+# post_run
+# cleanup
+
+## pre_run and post_run are the only true specifics that are different
+## with every package
+source $RELATIVE_DIR/functions

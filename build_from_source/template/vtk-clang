@@ -1,0 +1,79 @@
+#!/bin/bash
+#############
+## Specifics
+##
+DEP=(modules cmake llvm)
+PACKAGE='vtk-clang'
+
+#####
+# Set the operating system allowed to build this module
+#
+ARCH=(Darwin Linux)
+
+#####
+# Setting any of these variables to 'false' effectively skips that step
+# This is useful for items like 'autojump' which requires a git clone/checkout
+DOWNLOAD='http://mooseframework.org/source_packages/<VTK>.tar.gz'
+EXTRACT='<VTK>.tar.gz'
+CONFIGURE="cmake ../<VTK> -DCMAKE_INSTALL_PREFIX=$PACKAGES_DIR/<VTK>/clang-opt -DCMAKE_INSTALL_RPATH:STRING=$PACKAGES_DIR/<VTK>/clang-opt/lib -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=ON -DCMAKE_INSTALL_NAME_DIR:STRING=$PACKAGES_DIR/<VTK>/clang-opt/lib -DCMAKE_MACOSX_RPATH:BOOL=ON -DVTK_WRAP_PYTHON=ON -Wno-dev"
+BUILD='true'
+INSTALL='true'
+
+pre_run() {
+    if [ -d $PACKAGES_DIR/<VTK>/clang-opt ]; then
+	rm -rf $PACKAGES_DIR/<VTK>/clang-opt
+    fi
+    unset MODULEPATH
+    source $PACKAGES_DIR/Modules/<MODULES>/init/bash
+    module load advanced_modules cmake clang
+    export CC=clang; export CXX=clang++
+    cat <<EOF >> CMakeLists.txt
+if(APPLE)
+  set(EXECUTABLE_FLAG MACOSX_BUNDLE)
+endif(APPLE)
+EOF
+    cd ../
+    mkdir vtk-build; cd vtk-build
+}
+
+post_run() {
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/modulefiles/moose/.<VTK>-clang
+#%Module1.0#####################################################################
+##
+## <VTK> Clang Module
+##
+##
+##
+set             BASE_PATH          $PACKAGES_DIR
+
+if { [uname sysname] != "Darwin" } {
+  prepend-path    LD_LIBRARY_PATH    \$BASE_PATH/<VTK>/clang-opt/lib
+}
+
+setenv          VTKINCLUDE_DIR                \$BASE_PATH/<VTK>/clang-opt/include/<VTK_INCLUDE>
+prepend-path    INCLUDE_PATH                  \$BASE_PATH/<VTK>/clang-opt/include/<VTK_INCLUDE>
+setenv          VTKLIB_DIR                    \$BASE_PATH/<VTK>/clang-opt/lib
+setenv          VTK6_PYTHON_DIR               \$BASE_PATH/<VTK>/clang-opt/lib/python2.7/site-packages
+EOF
+    unset CC CXX
+    cd $PACKAGES_DIR/Modules/<MODULES>/adv_modules
+    ln -s ../modulefiles/moose/.<VTK>-clang vtk-clang
+}
+##
+## End Specifics
+##############
+## The following script contains all the common functions.
+## Those functions are executed in the following order:
+
+# download
+# extract
+# pre-run
+# configure
+# make
+# make install
+# post_run
+# cleanup
+
+## pre_run and post_run are the only true specifics that are different
+## with every package
+source $RELATIVE_DIR/functions

@@ -1,0 +1,77 @@
+#!/bin/bash
+#############
+## Specifics
+##
+DEP=(modules)
+PACKAGE='miniconda'
+
+#####
+# Set the operating system allowed to build this module
+#
+ARCH=(Darwin Linux)
+
+#####
+# Setting any of these variables to 'false' effectively skips that step
+# This is useful for items like 'autojump' which requires a git clone/checkout
+if [ `uname` = "Darwin" ]; then
+    DOWNLOAD='http://mooseframework.org/source_packages/<MINICONDA>-MacOSX-x86_64.sh'
+else
+    DOWNLOAD='http://mooseframework.org/source_packages/<MINICONDA>-Linux-x86_64.sh'
+fi
+EXTRACT='false'
+CONFIGURE="false"
+BUILD='false'
+INSTALL='false'
+
+pre_run() {
+    if [ -d $PACKAGES_DIR/$PACKAGE ]; then
+	rm -rf $PACKAGES_DIR/$PACKAGE
+    fi
+    if [ `uname` = "Darwin" ]; then
+	bash $DOWNLOAD_DIR/<MINICONDA>-MacOSX-x86_64.sh -b -p $PACKAGES_DIR/$PACKAGE
+	if [ $? -ne 0 ]; then echo "Failed to install $PACKAGE"; cleanup 1; fi
+    else
+	bash $DOWNLOAD_DIR/<MINICONDA>-Linux-x86_64.sh -b -p $PACKAGES_DIR/$PACKAGE
+	if [ $? -ne 0 ]; then echo "Failed to install $PACKAGE"; cleanup 1; fi
+    fi
+    PATH=$PACKAGES_DIR/$PACKAGE/bin:$PATH conda update conda --yes
+    if [ $? -ne 0 ]; then echo "Failed to update $PACKAGE"; cleanup 1; fi
+    PATH=$PACKAGES_DIR/$PACKAGE/bin:$PATH conda install coverage reportlab mako numpy scipy scikit-learn h5py hdf5 scikit-image requests vtk pyyaml matplotlib pyside conda-build --yes
+    if [ $? -ne 0 ]; then echo "Failed to install $PACKAGE packages"; cleanup 1; fi
+}
+post_run() {
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/modulefiles/$PACKAGE
+#%Module1.0#####################################################################
+##
+## $PACKAGE Module
+##
+##
+##
+set             BASE_PATH        $PACKAGES_DIR
+
+# Miniconda/Peacock
+setenv          QT_API           pyside
+prepend-path    PATH             \$BASE_PATH/$PACKAGE/bin
+EOF
+    PATH=$PACKAGES_DIR/$PACKAGE/bin:$PATH conda clean --lock --tarballs --index-cache --packages --source-cache --yes
+    rm -rf $PACKAGES_DIR/$PACKAGE/pkgs/*
+    
+}
+##
+## End Specifics
+##############
+## The following script contains all the common functions.
+## Those functions are executed in the following order:
+
+# download
+# extract
+# pre-run
+# configure
+# make
+# make install
+# post_run
+# cleanup
+
+## pre_run and post_run are the only true specifics that are different
+## with every package
+source $RELATIVE_DIR/functions

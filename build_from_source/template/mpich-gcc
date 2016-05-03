@@ -1,0 +1,114 @@
+#!/bin/bash
+#############
+## Specifics
+##
+DEP=(modules gcc)
+PACKAGE='mpich-gcc'
+
+#####
+# Set the operating system allowed to build this module
+#
+ARCH=(Darwin Linux)
+
+#####
+# Setting any of these variables to 'false' effectively skips that step
+# This is useful for items like 'autojump' which requires a git clone/checkout
+DOWNLOAD='http://mooseframework.org/source_packages/<MPICH>.tar.gz'
+EXTRACT='<MPICH>.tar.gz'
+CONFIGURE="../configure --prefix=$PACKAGES_DIR/mpich/<MPICH>/gcc-opt --enable-shared --enable-sharedlibs=gcc --enable-fast=03 --enable-debuginfo --enable-totalview --enable-two-level-namespace CC=gcc CXX=g++ FC=gfortran F77=gfortran F90='' CFLAGS='' CXXFLAGS='' FFLAGS='' FCFLAGS='' F90FLAGS='' F77FLAGS=''"
+BUILD='true'
+INSTALL='true'
+
+pre_run() {
+    if [ -d $PACKAGES_DIR/mpich/<MPICH>/gcc-opt ]; then
+	rm -rf $PACKAGES_DIR/mpich/<MPICH>/gcc-opt
+    fi
+    mkdir gcc-opt; cd gcc-opt
+    unset MODULEPATH
+    source $PACKAGES_DIR/Modules/<MODULES>/init/bash
+    module load advanced_modules gcc
+}
+post_run() {
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/modulefiles/moose/.<MPICH>_gcc
+#%Module1.0#####################################################################
+##
+## MPICH GCC
+##
+set BASE_PATH   $PACKAGES_DIR
+
+set             MPI_PATH           \$BASE_PATH/mpich/<MPICH>/gcc-opt
+conflict moose/.<MPICH>_clang moose/.<OPENMPI>_clang moose/.<OPENMPI>_gcc <MPICH>_clang <OPENMPI>_clang <OPENMPI>_gcc
+module load moose/.<GCC>
+
+prepend-path    C_INCLUDE_PATH     \$MPI_PATH/include
+prepend-path    CPLUS_INCLUDE_PATH \$MPI_PATH/include
+prepend-path    FPATH              \$MPI_PATH/include
+prepend-path    MANPATH            \$MPI_PATH/share/man
+
+setenv CC       mpicc
+setenv CXX      mpicxx
+setenv F90      mpif90
+setenv F77      mpif77
+setenv FC       mpif90
+
+setenv          MPI_HOME          \$MPI_PATH
+prepend-path    PATH              \$MPI_PATH/bin
+EOF
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/adv_modules/mpich-gcc
+#%Module1.0#####################################################################
+##
+## MPICH GCC
+##
+set BASE_PATH   $PACKAGES_DIR
+
+set             MPI_PATH           \$BASE_PATH/mpich/<MPICH>/gcc-opt
+
+conflict moose/.<MPICH>_gcc moose/.<MPICH>_clang moose/.<OPENMPI>_clang moose/.<OPENMPI>_gcc <MPICH>_clang <OPENMPI>_clang <OPENMPI>_gcc
+
+if { ! [ is-loaded <GCC> ] } {
+  module load moose/.<GCC>
+}
+
+prepend-path    C_INCLUDE_PATH     \$MPI_PATH/include
+prepend-path    CPLUS_INCLUDE_PATH \$MPI_PATH/include
+prepend-path    FPATH              \$MPI_PATH/include
+prepend-path    MANPATH            \$MPI_PATH/share/man
+
+setenv CC       mpicc
+setenv CXX      mpicxx
+setenv F90      mpif90
+setenv F77      mpif77
+setenv FC       mpif90
+
+setenv          MPI_HOME          \$MPI_PATH
+prepend-path    PATH              \$MPI_PATH/bin
+
+append-path     MODULEPATH        \$BASE_PATH/Modules/<MODULES>/mpich_gcc
+EOF
+    module load advanced_modules mpich-gcc
+    cd $MPI_HOME/lib
+    for sfile in `find . -type f -name "*.la"`; do
+	if [ `grep -c 'src_temp_' $sfile` -ge 1 ]; then
+	    echo 'editing file: '$sfile
+	    perl -pi -e "s/-L.\S*src_temp_\S*[^'\s+]//g" $sfile
+	fi
+    done
+}
+##
+## End Specifics
+##############
+## The following script contains all the common functions.
+## Those functions are executed in the following order:
+
+# download
+# extract
+# pre-run
+# configure
+# make
+# make install
+# post_run
+# cleanup
+
+## pre_run and post_run are the only true specifics that are different
+## with every package
+source $RELATIVE_DIR/functions

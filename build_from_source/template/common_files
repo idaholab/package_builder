@@ -1,0 +1,48 @@
+#!/bin/bash
+#############
+## Specifics
+##
+DEP=(moose_profile)
+PACKAGE='common_files'
+
+#####
+# Set the operating system allowed to build this module
+#
+ARCH=(Darwin Linux)
+
+#####
+# Setting any of these variables to 'false' effectively skips that step
+# This is useful for items like 'autojump' which requires a git clone/checkout
+DOWNLOAD='false'
+EXTRACT='false'
+CONFIGURE='false'
+BUILD='false'
+INSTALL='false'
+
+pre_run() {
+  return
+}
+
+post_run() {
+  for sfile in `ls $RELATIVE_DIR/../common_files`; do
+    cp -R $RELATIVE_DIR/../common_files/$sfile $PACKAGES_DIR
+  done
+}
+##
+## End Specifics
+##############
+## The following script contains all the common functions.
+## Those functions are executed in the following order:
+
+# download
+# extract
+# pre-run
+# configure
+# make
+# make install
+# post_run
+# cleanup
+
+## pre_run and post_run are the only true specifics that are different
+## with every package
+source $RELATIVE_DIR/functions

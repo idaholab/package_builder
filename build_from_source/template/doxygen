@@ -1,0 +1,51 @@
+#!/bin/bash
+#############
+## Specifics
+##
+DEP=(modules cmake)
+PACKAGE='doxygen'
+
+#####
+# Set the operating system allowed to build this module
+#
+ARCH=(Darwin Linux)
+
+#####
+# Setting any of these variables to 'false' effectively skips that step
+# This is useful for items like 'autojump' which requires a git clone/checkout
+DOWNLOAD='http://mooseframework.org/source_packages/<DOXYGEN>.src.tar.gz'
+EXTRACT='<DOXYGEN>.src.tar.gz'
+CONFIGURE="cmake -DCMAKE_INSTALL_PREFIX=$PACKAGES_DIR/$PACKAGE -Wno-dev .."
+BUILD='true'
+INSTALL='true'
+
+pre_run() {
+    if [ -d $PACKAGES_DIR/$PACKAGE ]; then
+	rm -rf $PACKAGES_DIR/$PACKAGE
+    fi
+    unset MODULEPATH
+    source $PACKAGES_DIR/Modules/<MODULES>/init/bash
+    module load advanced_modules cmake
+    mkdir build; cd build
+}
+post_run() {
+    return
+}
+##
+## End Specifics
+##############
+## The following script contains all the common functions.
+## Those functions are executed in the following order:
+
+# download
+# extract
+# pre-run
+# configure
+# make
+# make install
+# post_run
+# cleanup
+
+## pre_run and post_run are the only true specifics that are different
+## with every package
+source $RELATIVE_DIR/functions

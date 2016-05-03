@@ -1,0 +1,59 @@
+#!/bin/bash
+#############
+## Specifics
+##
+DEP=(modules)
+PACKAGE='cmake'
+
+#####
+# Set the operating system allowed to build this module
+#
+ARCH=(Darwin Linux)
+
+#####
+# Setting any of these variables to 'false' effectively skips that step
+# This is useful for items like 'autojump' which requires a git clone/checkout
+DOWNLOAD='http://mooseframework.org/source_packages/<CMAKE>.tar.gz'
+EXTRACT='<CMAKE>.tar.gz'
+CONFIGURE="./configure --prefix=$PACKAGES_DIR/$PACKAGE"
+BUILD='true'
+INSTALL='true'
+
+pre_run() {
+    if [ -d $PACKAGES_DIR/$PACKAGE ]; then
+      rm -rf $PACKAGES_DIR/$PACKAGE
+    fi
+    return
+}
+
+post_run() {
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/adv_modules/cmake
+#%Module1.0#####################################################################
+##
+## Cmake 3.x modulefile
+##
+##
+##
+set          BASE_PATH          $PACKAGES_DIR
+
+prepend-path PATH               \$BASE_PATH/cmake/bin
+EOF
+}
+##
+## End Specifics
+##############
+## The following script contains all the common functions.
+## Those functions are executed in the following order:
+
+# download
+# extract
+# pre-run
+# configure
+# make
+# make install
+# post_run
+# cleanup
+
+## pre_run and post_run are the only true specifics that are different
+## with every package
+source $RELATIVE_DIR/functions
