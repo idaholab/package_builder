@@ -55,9 +55,47 @@ EOF
 ## <VTK>
 ## <TRILINOS>
 ##
-module load moose/.<MPICH>_GCC
+module load moose/.<MPICH>_gcc
 module load moose/.mpich_<PETSC_OLD>-gcc
 module load moose/.<VTK>-gcc
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-gcc
+module load moose/.mpich_<TRILINOS>-gcc-dbg
+module load ccache
+module load moose-tools
+
+EOF
+
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-gcc-petsc_old-trilinos-opt
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_OLD>
+## <GCC>
+## <MPICH>
+## <TRILINOS>
+##
+module load moose/.<MPICH>_gcc
+module load moose/.mpich_<PETSC_OLD>-gcc
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-gcc
+module load moose/.mpich_<TRILINOS>-gcc-opt
+module load ccache
+module load moose-tools
+
+EOF
+
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-gcc-petsc_old-trilinos-dbg
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_OLD>
+## <GCC>
+## <MPICH>
+## <TRILINOS>
+##
+module load moose/.<MPICH>_gcc
+module load moose/.mpich_<PETSC_OLD>-gcc
 module load moose/.<TBB>
 module load moose/.<CPPUNIT>-gcc
 module load moose/.mpich_<TRILINOS>-gcc-dbg
@@ -144,6 +182,44 @@ module load moose-tools
 
 EOF
 
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/openmpi-clang-petsc_old-trilinos-opt
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_OLD>
+## <CLANG>
+## <OPENMPI>
+## <TRILINOS>
+##
+module load moose/.<OPENMPI>_clang
+module load moose/.openmpi_<PETSC_OLD>-clang
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-clang
+module load moose/.openmpi_<TRILINOS>-clang-opt
+module load ccache
+module load moose-tools
+
+EOF
+
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/openmpi-clang-petsc_old-trilinos-dbg
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_OLD>
+## <CLANG>
+## <OPENMPI>
+## <TRILINOS>
+##
+module load moose/.<OPENMPI>_clang
+module load moose/.openmpi_<PETSC_OLD>-clang
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-clang
+module load moose/.openmpi_<TRILINOS>-clang-dbg
+module load ccache
+module load moose-tools
+
+EOF
+
     cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/openmpi-clang-petsc_old-vtk
 #%Module1.0#####################################################################
 ##
@@ -211,9 +287,47 @@ EOF
 ## <VTK>
 ## <TRILINOS>
 ##
-module load moose/.<MPICH>_GCC
+module load moose/.<MPICH>_gcc
 module load moose/.mpich_<PETSC_OLD>-gcc
 module load moose/.<VTK>-gcc
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-gcc
+module load moose/.mpich_<TRILINOS>-gcc-dbg
+module load ccache
+module load moose-tools
+
+EOF
+
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-gcc-petsc_old-trilinos-opt
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_OLD>
+## <GCC>
+## <MPICH>
+## <TRILINOS>
+##
+module load moose/.<MPICH>_gcc
+module load moose/.mpich_<PETSC_OLD>-gcc
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-gcc
+module load moose/.mpich_<TRILINOS>-gcc-opt
+module load ccache
+module load moose-tools
+
+EOF
+
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-gcc-petsc_old-trilinos-dbg
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_OLD>
+## <GCC>
+## <MPICH>
+## <TRILINOS>
+##
+module load moose/.<MPICH>_gcc
+module load moose/.mpich_<PETSC_OLD>-gcc
 module load moose/.<TBB>
 module load moose/.<CPPUNIT>-gcc
 module load moose/.mpich_<TRILINOS>-gcc-dbg
@@ -300,6 +414,44 @@ module load moose-tools
 
 EOF
 
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-clang-petsc_old-trilinos-opt
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_OLD>
+## <CLANG>
+## <MPICH>
+## <TRILINOS>
+##
+module load moose/.<MPICH>_clang
+module load moose/.mpich_<PETSC_OLD>-clang
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-clang
+module load moose/.mpich_<TRILINOS>-clang-opt
+module load ccache
+module load moose-tools
+
+EOF
+
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-clang-petsc_old-trilinos-dbg
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_OLD>
+## <CLANG>
+## <MPICH>
+## <TRILINOS>
+##
+module load moose/.<MPICH>_clang
+module load moose/.mpich_<PETSC_OLD>-clang
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-clang
+module load moose/.mpich_<TRILINOS>-clang-dbg
+module load ccache
+module load moose-tools
+
+EOF
+
     cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-clang-petsc_old-vtk
 #%Module1.0#####################################################################
 ##
@@ -370,6 +522,44 @@ EOF
 module load moose/.<OPENMPI>_gcc
 module load moose/.openmpi_<PETSC_NEW>-gcc
 module load moose/.<VTK>-gcc
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-gcc
+module load moose/.openmpi_<TRILINOS>-gcc-dbg
+module load ccache
+module load moose-tools
+
+EOF
+
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/openmpi-gcc-petsc_new-trilinos-opt
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_NEW>
+## <GCC>
+## <OPENMPI>
+## <TRILINOS>
+##
+module load moose/.<OPENMPI>_gcc
+module load moose/.openmpi_<PETSC_NEW>-gcc
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-gcc
+module load moose/.openmpi_<TRILINOS>-gcc-opt
+module load ccache
+module load moose-tools
+
+EOF
+
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/openmpi-gcc-petsc_new-trilinos-dbg
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_NEW>
+## <GCC>
+## <OPENMPI>
+## <TRILINOS>
+##
+module load moose/.<OPENMPI>_gcc
+module load moose/.openmpi_<PETSC_NEW>-gcc
 module load moose/.<TBB>
 module load moose/.<CPPUNIT>-gcc
 module load moose/.openmpi_<TRILINOS>-gcc-dbg
@@ -456,6 +646,44 @@ module load moose-tools
 
 EOF
 
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/openmpi-clang-petsc_new-trilinos-opt
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_NEW>
+## <CLANG>
+## <OPENMPI>
+## <TRILINOS>
+##
+module load moose/.<OPENMPI>_clang
+module load moose/.openmpi_<PETSC_NEW>-clang
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-clang
+module load moose/.openmpi_<TRILINOS>-clang-opt
+module load ccache
+module load moose-tools
+
+EOF
+
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/openmpi-clang-petsc_new-trilinos-dbg
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_NEW>
+## <CLANG>
+## <OPENMPI>
+## <TRILINOS>
+##
+module load moose/.<OPENMPI>_clang
+module load moose/.openmpi_<PETSC_NEW>-clang
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-clang
+module load moose/.openmpi_<TRILINOS>-clang-dbg
+module load ccache
+module load moose-tools
+
+EOF
+
     cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/openmpi-clang-petsc_new-vtk
 #%Module1.0#####################################################################
 ##
@@ -523,9 +751,47 @@ EOF
 ## <VTK>
 ## <TRILINOS>
 ##
-module load moose/.<MPICH>_GCC
+module load moose/.<MPICH>_gcc
 module load moose/.mpich_<PETSC_NEW>-gcc
 module load moose/.<VTK>-gcc
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-gcc
+module load moose/.mpich_<TRILINOS>-gcc-dbg
+module load ccache
+module load moose-tools
+
+EOF
+
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-gcc-petsc_new-trilinos-opt
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_NEW>
+## <GCC>
+## <MPICH>
+## <TRILINOS>
+##
+module load moose/.<MPICH>_gcc
+module load moose/.mpich_<PETSC_NEW>-gcc
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-gcc
+module load moose/.mpich_<TRILINOS>-gcc-opt
+module load ccache
+module load moose-tools
+
+EOF
+
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-gcc-petsc_new-trilinos-dbg
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_NEW>
+## <GCC>
+## <MPICH>
+## <TRILINOS>
+##
+module load moose/.<MPICH>_gcc
+module load moose/.mpich_<PETSC_NEW>-gcc
 module load moose/.<TBB>
 module load moose/.<CPPUNIT>-gcc
 module load moose/.mpich_<TRILINOS>-gcc-dbg
@@ -604,6 +870,44 @@ EOF
 module load moose/.<MPICH>_clang
 module load moose/.mpich_<PETSC_NEW>-clang
 module load moose/.<VTK>-clang
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-clang
+module load moose/.mpich_<TRILINOS>-clang-dbg
+module load ccache
+module load moose-tools
+
+EOF
+
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-clang-petsc_new-trilinos-opt
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_NEW>
+## <CLANG>
+## <MPICH>
+## <TRILINOS>
+##
+module load moose/.<MPICH>_clang
+module load moose/.mpich_<PETSC_NEW>-clang
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-clang
+module load moose/.mpich_<TRILINOS>-clang-opt
+module load ccache
+module load moose-tools
+
+EOF
+
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-clang-petsc_new-trilinos-dbg
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_NEW>
+## <CLANG>
+## <MPICH>
+## <TRILINOS>
+##
+module load moose/.<MPICH>_clang
+module load moose/.mpich_<PETSC_NEW>-clang
 module load moose/.<TBB>
 module load moose/.<CPPUNIT>-clang
 module load moose/.mpich_<TRILINOS>-clang-dbg

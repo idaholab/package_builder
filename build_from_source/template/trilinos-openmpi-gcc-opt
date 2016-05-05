@@ -61,13 +61,13 @@ pre_run() {
     module load advanced_modules cmake openmpi-gcc
     git clone https://github.com/ORNL-CEES/DataTransferKit.git
     cd DataTransferKit
-    git checkout b40e1cec6f00760efb1107161df5596f6486429f
+    git checkout <DATATRANSFERKIT>
     cd ../
     mkdir gcc-opt; cd gcc-opt
 }
 
 post_run() {
-    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/modulefiles/moose/.openmpi-<TRILINOS>-gcc-opt
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/modulefiles/moose/.openmpi_<TRILINOS>-gcc-opt
 #%Module1.0#####################################################################
 ##
 ##  Trilinos OpenMPI GCC Optimized Module

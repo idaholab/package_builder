@@ -61,13 +61,13 @@ pre_run() {
     module load advanced_modules cmake mpich-clang
     git clone https://github.com/ORNL-CEES/DataTransferKit.git
     cd DataTransferKit
-    git checkout b40e1cec6f00760efb1107161df5596f6486429f
+    git checkout <DATATRANSFERKIT>
     cd ../
     mkdir clang-dbg; cd clang-dbg
 }
 
 post_run() {
-    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/modulefiles/moose/.mpich-<TRILINOS>-clang-dbg
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/modulefiles/moose/.mpich_<TRILINOS>-clang-dbg
 #%Module1.0#####################################################################
 ##
 ##  Trilinos MPICH Clang Debug Module 

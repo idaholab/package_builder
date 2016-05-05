@@ -61,13 +61,13 @@ pre_run() {
     module load advanced_modules cmake mpich-clang
     git clone https://github.com/ORNL-CEES/DataTransferKit.git
     cd DataTransferKit
-    git checkout b40e1cec6f00760efb1107161df5596f6486429f
+    git checkout <DATATRANSFERKIT>
     cd ../
     mkdir clang-opt; cd clang-opt
 }
 
 post_run() {
-    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/modulefiles/moose/.mpich-<TRILINOS>-clang-opt
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/modulefiles/moose/.mpich_<TRILINOS>-clang-opt
 #%Module1.0#####################################################################
 ##
 ##  Trilinos MPICH Clang Optimized Module 
