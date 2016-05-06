@@ -1,7 +1,7 @@
 MPICH=mpich-3.2
 OPENMPI=openmpi-1.10.2
-PETSC_NEW=petsc-3.6.4
-PETSC_OLD=petsc-3.5.4
+PETSC_NEW=petsc-3.7.0
+PETSC_OLD=petsc-3.6.4
 TRILINOS=trilinos-release-12-6-2
 AUTOCONF=autoconf-2.69
 AUTOMAKE=automake-1.13

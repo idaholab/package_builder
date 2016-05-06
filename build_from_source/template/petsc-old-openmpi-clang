@@ -37,8 +37,7 @@ CXXFLAGS='-fPIC -fopenmp' \
 FFLAGS='-fPIC -fopenmp' \
 FCFLAGS='-fPIC -fopenmp' \
 F90FLAGS='-fPIC -fopenmp' \
-F77FLAGS='-fPIC -fopenmp' \
-LDFLAGS='-Wl,-rpath,$PACKAGES_DIR/<LLVM>/lib'"
+F77FLAGS='-fPIC -fopenmp'"
 
 BUILD='false'
 INSTALL='false'
@@ -50,68 +49,19 @@ pre_run() {
     unset MODULEPATH
     source $PACKAGES_DIR/Modules/<MODULES>/init/bash
     module load advanced_modules cmake openmpi-clang
-    cat <<'EOF' > clang_openmp.patch
-diff -ru a/config/BuildSystem/config/package.py b/config/BuildSystem/config/package.py
---- a/config/BuildSystem/config/package.py  2015-05-23 10:57:09.000000000 -0600
-+++ b/config/BuildSystem/config/package.py  2015-10-27 09:46:20.000000000 -0600
-@@ -998,6 +998,7 @@
-     compiler = self.getCompiler()
-     args.append('CC="'+self.getCompiler()+'"')
-     args.append('CFLAGS="'+self.getCompilerFlags()+'"')
-+    args.append('LDFLAGS="'+self.getLinkerFlags()+'"')
-     self.popLanguage()
-     if hasattr(self.compilers, 'CXX'):
-       self.pushLanguage('Cxx')
-diff -ru a/config/BuildSystem/config/packages/MPI.py b/config/BuildSystem/config/packages/MPI.py
---- a/config/BuildSystem/config/packages/MPI.py 2015-01-30 23:23:51.000000000 -0700
-+++ b/config/BuildSystem/config/packages/MPI.py 2015-10-27 09:57:56.000000000 -0600
-@@ -736,9 +736,9 @@
-       self.addDefine('HAVE_MPICH_NUMVERSION',mpich_numversion)
-     elif self.checkCompile(openmpi_test):
-       buf = self.outputPreprocess(openmpi_test)
--      ompi_major_version = re.compile('\nint ompi_major = *([0-9]*) *;').search(buf).group(1)
--      ompi_minor_version = re.compile('\nint ompi_minor = *([0-9]*) *;').search(buf).group(1)
--      ompi_release_version = re.compile('\nint ompi_release = *([0-9]*) *;').search(buf).group(1)
-+      ompi_major_version = '1'
-+      ompi_minor_version = '10'
-+      ompi_release_version = '2'
-       self.addDefine('HAVE_OMPI_MAJOR_VERSION',ompi_major_version)
-       self.addDefine('HAVE_OMPI_MINOR_VERSION',ompi_minor_version)
-       self.addDefine('HAVE_OMPI_RELEASE_VERSION',ompi_release_version)
-diff -ru a/config/PETSc/packages/hypre.py b/config/PETSc/packages/hypre.py
---- a/config/PETSc/packages/hypre.py    2014-09-08 21:52:47.000000000 -0600
-+++ b/config/PETSc/packages/hypre.py    2015-10-27 09:46:56.000000000 -0600
-@@ -39,6 +39,7 @@
-     args.append('--libdir='+os.path.join(self.installDir,self.libdir))
-     args.append('CC="'+self.framework.getCompiler()+'"')
-     args.append('CFLAGS="'+self.framework.getCompilerFlags()+'"')
-+    args.append('LDFLAGS="'+self.framework.getLinkerFlags()+'"')
-     self.framework.popLanguage()
-     if hasattr(self.compilers, 'CXX'):
-       self.framework.pushLanguage('Cxx')
-EOF
-    patch -p1 < clang_openmp.patch
 }
 
 post_run() {
     if [ `uname` = "Darwin" ]; then
-	make PETSC_DIR=$1/<PETSC_OLD> PETSC_ARCH=arch-darwin-c-opt all
-	if [ $? -ne 0 ]; then echo "Error while building PETSc"; cleanup 1; fi
-	make PETSC_DIR=$1/<PETSC_OLD> PETSC_ARCH=arch-darwin-c-opt install
-	if [ $? -ne 0 ]; then echo "Error while installing PETSc"; cleanup 1; fi
-        cd $PACKAGES_DIR/petsc/openmpi_<PETSC_OLD>/clang-opt-superlu/lib
-        install_name_tool -change $src_temp/<PETSC_OLD>/arch-darwin-c-opt/lib/libparmetis.dylib $PACKAGES_DIR/petsc/openmpi_<PETSC_OLD>/clang-opt-superlu/lib/libparmetis.dylib libpetsc.dylib
-        install_name_tool -change $src_temp/<PETSC_OLD>/arch-darwin-c-opt/lib/libmetis.dylib $PACKAGES_DIR/petsc/openmpi_<PETSC_OLD>/clang-opt-superlu/lib/libmetis.dylib libpetsc.dylib
-        install_name_tool -change $src_temp/<PETSC_OLD>/arch-darwin-c-opt/lib/libmetis.dylib $PACKAGES_DIR/petsc/openmpi_<PETSC_OLD>/clang-opt-superlu/lib/libmetis.dylib libparmetis.dylib
-        install_name_tool -change @rpath/libomp.dylib $PACKAGES_DIR/<LLVM>/lib/libomp.dylib libparmetis.dylib
-        install_name_tool -change @rpath/libomp.dylib $PACKAGES_DIR/<LLVM>/lib/libomp.dylib libmetis.dylib
-        install_name_tool -change @rpath/libomp.dylib $PACKAGES_DIR/<LLVM>/lib/libomp.dylib libpetsc.dylib
-        install_name_tool -change @rpath/libc++.1.dylib $PACKAGES_DIR/<LLVM>/lib/libc++.1.dylib libpetsc.dylib
+	    make PETSC_DIR=$1/<PETSC_OLD> PETSC_ARCH=arch-darwin-c-opt all
+	    if [ $? -ne 0 ]; then echo "Error while building PETSc"; cleanup 1; fi
+	    make PETSC_DIR=$1/<PETSC_OLD> PETSC_ARCH=arch-darwin-c-opt install
+	    if [ $? -ne 0 ]; then echo "Error while installing PETSc"; cleanup 1; fi
     else
-	make PETSC_DIR=$1/<PETSC_OLD> PETSC_ARCH=arch-linux2-c-opt all
-	if [ $? -ne 0 ]; then echo "Error while building PETSc"; cleanup 1; fi
-	make PETSC_DIR=$1/<PETSC_OLD> PETSC_ARCH=arch-linux2-c-opt install
-	if [ $? -ne 0 ]; then echo "Error while installing PETSc"; cleanup 1; fi
+	    make PETSC_DIR=$1/<PETSC_OLD> PETSC_ARCH=arch-linux2-c-opt all
+	    if [ $? -ne 0 ]; then echo "Error while building PETSc"; cleanup 1; fi
+	    make PETSC_DIR=$1/<PETSC_OLD> PETSC_ARCH=arch-linux2-c-opt install
+	    if [ $? -ne 0 ]; then echo "Error while installing PETSc"; cleanup 1; fi
     fi
     cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/modulefiles/moose/.openmpi_<PETSC_OLD>-clang
 #%Module1.0#####################################################################
