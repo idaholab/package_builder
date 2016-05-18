@@ -355,6 +355,23 @@ module load moose-tools
 
 EOF
 
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-gcc-petsc_default_64
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_DEFAULT>-64
+## <GCC>
+## <MPICH>
+##
+module load moose/.<MPICH>_gcc
+module load moose/.mpich_<PETSC_DEFAULT>-64-gcc
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-gcc
+module load ccache
+module load moose-tools
+
+EOF
+
     cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-gcc-petsc_default
 #%Module1.0#####################################################################
 ##
@@ -464,6 +481,23 @@ EOF
 module load moose/.<MPICH>_clang
 module load moose/.mpich_<PETSC_DEFAULT>-clang
 module load moose/.<VTK>-clang
+module load moose/.<TBB>
+module load moose/.<CPPUNIT>-clang
+module load ccache
+module load moose-tools
+
+EOF
+
+    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-clang-petsc_default_64
+#%Module1.0#####################################################################
+##
+## Civet support module
+## <PETSC_DEFAULT>-64
+## <CLANG>
+## <MPICH>
+##
+module load moose/.<MPICH>_clang
+module load moose/.mpich_<PETSC_DEFAULT>-64-clang
 module load moose/.<TBB>
 module load moose/.<CPPUNIT>-clang
 module load ccache
