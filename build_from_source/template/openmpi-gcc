@@ -23,7 +23,7 @@ INSTALL='true'
 
 pre_run() {
     if [ -d $PACKAGES_DIR/openmpi/<OPENMPI>/gcc-opt ]; then
-	rm -rf $PACKAGES_DIR/openmpi/<OPENMPI>/gcc-opt
+        rm -rf $PACKAGES_DIR/openmpi/<OPENMPI>/gcc-opt
     fi
     mkdir gcc-opt; cd gcc-opt
     unset MODULEPATH

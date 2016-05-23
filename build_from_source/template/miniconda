@@ -25,7 +25,7 @@ INSTALL='false'
 
 pre_run() {
     if [ -d $PACKAGES_DIR/$PACKAGE ]; then
-	rm -rf $PACKAGES_DIR/$PACKAGE
+        rm -rf $PACKAGES_DIR/$PACKAGE
     fi
     if [ `uname` = "Darwin" ]; then
 	bash $DOWNLOAD_DIR/<MINICONDA>-MacOSX-x86_64.sh -b -p $PACKAGES_DIR/$PACKAGE

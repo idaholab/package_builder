@@ -43,7 +43,7 @@ INSTALL='false'
 
 pre_run() {
     if [ -d $PACKAGES_DIR/petsc/mpich_<PETSC_DEFAULT>/clang-opt-64 ]; then
-	rm -rf $PACKAGES_DIR/petsc/mpich_<PETSC_DEFAULT>/clang-opt-64
+        rm -rf $PACKAGES_DIR/petsc/mpich_<PETSC_DEFAULT>/clang-opt-64
     fi
     unset MODULEPATH
     source $PACKAGES_DIR/Modules/<MODULES>/init/bash

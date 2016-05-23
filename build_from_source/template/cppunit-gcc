@@ -21,7 +21,7 @@ INSTALL='true'
 
 pre_run() {
     if [ -d $PACKAGES_DIR/<CPPUNIT>/gcc-opt ]; then
-	$PACKAGES_DIR/<CPPUNIT>/gcc-opt
+        rm -rf $PACKAGES_DIR/<CPPUNIT>/gcc-opt
     fi
     unset MODULEPATH
     source $PACKAGES_DIR/Modules/<MODULES>/init/bash

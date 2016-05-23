@@ -54,7 +54,7 @@ INSTALL='true'
 
 pre_run() {
     if [ -d $PACKAGES_DIR/<TRILINOS>/mpich-clang-dbg ]; then
-	rm -rf $PACKAGES_DIR/<TRILINOS>/mpich-clang-dbg
+        rm -rf $PACKAGES_DIR/<TRILINOS>/mpich-clang-dbg
     fi
     unset MODULEPATH
     source $PACKAGES_DIR/Modules/<MODULES>/init/bash

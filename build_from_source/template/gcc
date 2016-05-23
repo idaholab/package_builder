@@ -20,6 +20,9 @@ BUILD='true'
 INSTALL='true'
 
 pre_run() {
+    if [ -d $PACKAGES_DIR/<GCC> ]; then
+        rm $PACKAGES_DIR/<GCC>
+    fi
     unset MODULEPATH
     source $PACKAGES_DIR/Modules/<MODULES>/init/bash
     module load advanced_modules autotools
