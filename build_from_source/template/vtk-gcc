@@ -21,7 +21,7 @@ INSTALL='true'
 
 pre_run() {
     if [ -d $PACKAGES_DIR/<VTK>/gcc-opt ]; then
-	rm -rf $PACKAGES_DIR/<VTK>/gcc-opt
+        rm -rf $PACKAGES_DIR/<VTK>/gcc-opt
     fi
     unset MODULEPATH
     source $PACKAGES_DIR/Modules/<MODULES>/init/bash

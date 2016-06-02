@@ -25,7 +25,7 @@ INSTALL='true'
 
 pre_run() {
     if [ -d $PACKAGES_DIR/Modules ]; then
-	rm -rf $PACKAGES_DIR/Modules
+        rm -rf $PACKAGES_DIR/Modules
     fi
     return
 }

@@ -21,7 +21,7 @@ INSTALL='false'
 
 pre_run() {
     if [ -d $PACKAGES_DIR/$PACKAGE ]; then
-	rm -rf $PACKAGES_DIR/$PACKAGE
+        rm -rf $PACKAGES_DIR/$PACKAGE
     fi
     cd $PACKAGES_DIR
     git clone https://github.com/milljm/sjs.git

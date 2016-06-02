@@ -44,7 +44,7 @@ INSTALL='false'
 
 pre_run() {
     if [ -d $PACKAGES_DIR/petsc/openmpi_<PETSC_ALT>/gcc-dbg-superlu ]; then
-	rm -rf $PACKAGES_DIR/petsc/openmpi_<PETSC_ALT>/gcc-dbg-superlu
+        rm -rf $PACKAGES_DIR/petsc/openmpi_<PETSC_ALT>/gcc-dbg-superlu
     fi
     unset MODULEPATH
     source $PACKAGES_DIR/Modules/<MODULES>/init/bash
