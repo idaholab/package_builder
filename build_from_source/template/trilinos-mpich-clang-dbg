@@ -34,6 +34,7 @@ cmake \
 -D Trilinos_ENABLE_Epetra=ON \
 -D Trilinos_ENABLE_EpetraExt=ON \
 -D TPL_ENABLE_Libmesh=OFF \
+-D TPL_ENABLE_Boost=OFF \
 -D MPI_BASE_DIR:PATH=$MPI_HOME \
 -D Trilinos_ENABLE_CXX11:BOOL=ON \
 -D Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=OFF \

@@ -15,6 +15,8 @@ ARCH=(Darwin Linux)
 # This is useful for items like 'autojump' which requires a git clone/checkout
 DOWNLOAD='http://mooseframework.org/source_packages/<PETSC_ALT>.tar.gz'
 EXTRACT='<PETSC_ALT>.tar.gz'
+BIT='64'
+if [ `uname` = "Darwin" ]; then BIT=''; fi
 CONFIGURE="./configure \
 --prefix=$PACKAGES_DIR/petsc/openmpi_<PETSC_ALT>/clang-opt-superlu \
 --download-hypre=1 \
@@ -38,7 +40,7 @@ CONFIGURE="./configure \
 --FCFLAGS='-fPIC -fopenmp' \
 --F90FLAGS='-fPIC -fopenmp' \
 --F77FLAGS='-fPIC -fopenmp' \
---LDFLAGS='-L$PACKAGES_DIR/<GCC>/lib64'"
+--LDFLAGS='-L$PACKAGES_DIR/<GCC>/lib${BIT}'"
 
 BUILD='false'
 INSTALL='false'

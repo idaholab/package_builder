@@ -8,13 +8,15 @@ PACKAGE='<PETSC_DEFAULT>-64-mpich-clang'
 #####
 # Set the operating system allowed to build this module
 #
-ARCH=(Darwin)
+ARCH=(Darwin Linux)
 
 #####
 # Setting any of these variables to 'false' effectively skips that step
 # This is useful for items like 'autojump' which requires a git clone/checkout
 DOWNLOAD='http://mooseframework.org/source_packages/<PETSC_DEFAULT>.tar.gz'
 EXTRACT='<PETSC_DEFAULT>.tar.gz'
+BIT='64'
+if [ `uname` = "Darwin" ]; then BIT=''; fi
 CONFIGURE="./configure \
 --prefix=$PACKAGES_DIR/petsc/mpich_<PETSC_DEFAULT>/clang-opt-64 \
 --download-hypre=1 \
@@ -37,7 +39,7 @@ CONFIGURE="./configure \
 --FCFLAGS='-fPIC -fopenmp' \
 --F90FLAGS='-fPIC -fopenmp' \
 --F77FLAGS='-fPIC -fopenmp' \
---LDFLAGS='-L$PACKAGES_DIR/<GCC>/lib64'"
+--LDFLAGS='-L$PACKAGES_DIR/<GCC>/lib${BIT}'"
 
 BUILD='false'
 INSTALL='false'
