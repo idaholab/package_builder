@@ -36,8 +36,7 @@ CONFIGURE="./configure \
 --FFLAGS='-fPIC -fopenmp' \
 --FCFLAGS='-fPIC -fopenmp' \
 --F90FLAGS='-fPIC -fopenmp' \
---F77FLAGS='-fPIC -fopenmp' \
---LDFLAGS='-L$PACKAGES_DIR/<GCC>/lib64'"
+--F77FLAGS='-fPIC -fopenmp'"
 
 BUILD='false'
 INSTALL='false'
