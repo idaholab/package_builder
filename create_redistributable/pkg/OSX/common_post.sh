@@ -14,3 +14,10 @@ fi
 tar -xf /private/tmp/MOOSE_installer-tmp/payload.tar.gz -C /
 echo "<REDISTRIBUTABLE_VERSION>" > <PACKAGES_DIR>/build
 chown -R root:wheel <PACKAGES_DIR>
+
+# Remove symbolic link to openmp library if its owned by MOOSE package
+if [ -L /usr/local/lib/libomp.dylib ]; then
+  if [ `stat -f %Y /usr/local/lib/libomp.dylib | grep -c <PACKAGES_DIR>` -ge 1 ]; then
+    rm -f /usr/local/lib/libomp.dylib
+  fi
+fi
