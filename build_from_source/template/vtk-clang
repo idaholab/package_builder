@@ -58,7 +58,7 @@ if { [uname sysname] != "Darwin" } {
 setenv          VTKINCLUDE_DIR                \$BASE_PATH/<VTK>/clang-opt/include/<VTK_INCLUDE>
 prepend-path    INCLUDE_PATH                  \$BASE_PATH/<VTK>/clang-opt/include/<VTK_INCLUDE>
 setenv          VTKLIB_DIR                    \$BASE_PATH/<VTK>/clang-opt/lib
-setenv          VTK6_PYTHON_DIR               \$BASE_PATH/<VTK>/clang-opt/lib/python2.7/site-packages
+setenv          VTK_PYTHON_DIR                \$BASE_PATH/<VTK>/clang-opt/lib/python2.7/site-packages
 EOF
     unset CC CXX
     cd $PACKAGES_DIR/Modules/<MODULES>/adv_modules

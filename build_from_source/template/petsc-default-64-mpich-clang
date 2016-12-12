@@ -47,7 +47,8 @@ pre_run() {
 -FFLAGS='-fPIC -fopenmp' \
 -FCFLAGS='-fPIC -fopenmp' \
 -F90FLAGS='-fPIC -fopenmp' \
--F77FLAGS='-fPIC -fopenmp'
+-F77FLAGS='-fPIC -fopenmp' \
+--with-make-np=4
 }
 
 post_run() {
