@@ -32,7 +32,7 @@ def startJobs(args):
         if len(active_jobs) < int(args.max_modules):
           if not any(x[1] == job for x in active_jobs):
             print '  Launching:', job
-            active_jobs.append(launchJob(job))
+            active_jobs.append(launchJob(job, args))
         else:
           # Max jobs reached, start checking for results
           break
@@ -147,9 +147,12 @@ def alterVersions(version_template):
     os.chmod(os.path.join(packages_path, module), 0755)
   return True
 
-def launchJob(module):
+def launchJob(module, args):
   t = tempfile.TemporaryFile()
-  return (subprocess.Popen([os.path.join(os.path.abspath(os.path.dirname(__file__)), 'packages', module)], stdout=t, stderr=t, shell=True), module, t, time.time())
+  with open(os.path.join(args.prefix, module), 'w') as module_file:
+    module_file.write(module)
+  return (subprocess.Popen(['echo', module], stdout=t, stderr=t, shell=True), module, t, time.time())
+  #return (subprocess.Popen([os.path.join(os.path.abspath(os.path.dirname(__file__)), 'packages', module)], stdout=t, stderr=t, shell=True), module, t, time.time())
 
 def getList():
   job_list = []

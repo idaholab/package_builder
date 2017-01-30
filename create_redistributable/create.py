@@ -66,16 +66,10 @@ Base class for building packages
 
   def _get_build_version(self):
     if not os.path.exists(os.path.join(args.relative_path, self.__class__.__name__.lower(), self.release + '-' + self.version + '_build')):
-      with open(os.path.join(args.relative_path, self.__class__.__name__.lower(), self.release + '-' + self.version + '_build'), 'w') as version_file:
-        version_file.write('1')
-        return '1'
+      print 'WARNING: Creating NEW version:', self.release + '-1_build', '\nPLEASE CREATE AND UPDATE THIS FILE'
     else:
       with open(os.path.join(args.relative_path, self.__class__.__name__.lower(), self.release + '-' + self.version + '_build'), 'r+') as version_file:
-        new_version = int(version_file.read()) + 1
-        version_file.truncate(0)
-        version_file.seek(0)
-        version_file.write(str(new_version))
-        return new_version
+        return int(version_file.read())
 
   def clean_up(self):
     shutil.rmtree(self.temp_dir)
