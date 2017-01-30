@@ -149,7 +149,8 @@ def alterVersions(version_template):
 
 def launchJob(module):
   t = tempfile.TemporaryFile()
-  return (subprocess.Popen([os.path.join(os.path.abspath(os.path.dirname(__file__)), 'packages', module)], stdout=t, stderr=t, shell=True), module, t, time.time())
+  #return (subprocess.Popen([os.path.join(os.path.abspath(os.path.dirname(__file__)), 'packages', module)], stdout=t, stderr=t, shell=True), module, t, time.time())
+  return (subprocess.Popen(['echo', 'test'], stdout=t, stderr=t, shell=True), module, t, time.time())
 
 def getList():
   job_list = []
