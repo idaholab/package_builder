@@ -7,6 +7,34 @@ import multiprocessing # for timeouts
 from contrib import dag # contrib DAG
 from signal import SIGTERM
 
+class JobContainer(object):
+    """
+    Helper object containing things that belong with running jobs,
+    such as timing, and messages pertaining to the job it self.
+    """
+    def __init__(self, job_object):
+        self.__caveats = set([])
+        self.__time = None
+        self.__dag = job_object
+
+    def getDAG(self):
+        return self.__dag
+
+    def addCaveat(self, caveat):
+        self.__caveats.add(caveat)
+
+    def getCaveats(self):
+        if self.__caveats:
+            return ', '.join(self.__caveats)
+        return ''
+
+    def setTime(self, timing):
+        self.__time = timing
+
+    def getTime(self):
+        if self.__time:
+            return '%0.0fs' % float(self.__time)
+
 class SchedulerError(Exception):
     pass
 
@@ -21,15 +49,14 @@ class Scheduler(object):
 
     The object stored in the DAG should contain a run(), getResult() and killJob() method.
 
-    run() method contains the work you want performed.
-    getResult() can return anything, or what ever it is you want to print when the job is done.
+    run() method contains the work you want performed (this should be blocking).
+    getResult() should return boolean whether run performed its job correctly.
     killJob() should kill what ever it is 'job' is doing.
 
     As jobs are finished they will be assigned to a new single process pool to perform getResult().
 
     """
     def __init__(self, max_processes=1, max_slots=1, load_average=64, term_width=70):
-
         # Max processes allowed per slot
         self.processes_per_slot = int(max_processes)
 
@@ -93,15 +120,19 @@ class Scheduler(object):
         """ call the job's getResults method """
         with self.thread_lock:
             name = job.name
-            if job.status_done:
-                job.addCaveat('time: ' + job.getTime())
+            job_container = self.shared_dags[job]
+            job_dag = job_container.getDAG()
+
+            # If there is no timing, then the job is not finished
+            if job_container.getTime():
+                job_container.addCaveat('time: ' + job_container.getTime())
                 if job.getResult() == False:
                     self.active.remove(job)
                     self.killJobs()
                     return
                 else:
                     self.job_queue_count -= 1
-                    self.shared_dags[job].delete_node(job)
+                    job_dag.delete_node(job)
                     self.active.remove(job)
                     result = '-Finished  | '
 
@@ -111,8 +142,9 @@ class Scheduler(object):
             # Format job name length field
             name_cnt = (self.term_width - len(job.name)) + 2 # 2 character buffer
             result = result + job.name + ' '*name_cnt
+
             # Format caveat length
-            caveats = job.getCaveats()
+            caveats = job_container.getCaveats()
             caveat_cnt = self.max_caveat_length - len(caveats)
 
             if caveats:
@@ -120,7 +152,8 @@ class Scheduler(object):
             else:
                 result = result + ' '*caveat_cnt
 
-            print result, 'active: %d' % (len(self.active)), [x.name for x in self.active]
+            remaining = job_dag.size()
+            print result, "remaining: %-3d active: %-2d" % (remaining, len(self.active)), [x.name for x in self.active]
 
     def launchJob(self, job):
         """ call the job's run method """
@@ -128,8 +161,18 @@ class Scheduler(object):
             # Print initial status
             self.queueStatus(job)
 
+            # Start the clock
+            start = clock()
+
             # Run the job
             job.run()
+
+            # Stop the clock while in a thread lock
+            stop = clock()
+
+            with self.thread_lock:
+                timing = stop - start
+                self.shared_dags[job].setTime(timing)
 
             # Print final status
             self.queueStatus(job)
@@ -152,7 +195,7 @@ class Scheduler(object):
             self.job_queue_count += dag_object.size()
             for job in dag_object.topological_sort():
                 # create pointer to DAG for every job
-                self.shared_dags[job] = dag_object
+                self.shared_dags[job] = JobContainer(dag_object)
 
         self.queueDAG(dag_object)
 
@@ -164,7 +207,7 @@ class Scheduler(object):
         with self.thread_lock:
             if job not in self.active and (job.serial or len(self.active) < self.max_slots):
                 if job.serial:
-                    job.addCaveat('serial')
+                    self.shared_dags[job].addCaveat('serial')
 
                 self.active.add(job)
                 return True

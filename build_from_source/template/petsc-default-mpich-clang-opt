@@ -49,12 +49,12 @@ pre_run() {
 --download-mumps=1 \
 --download-scalapack=1 \
 -CC=mpicc -CXX=mpicxx -FC=mpif90 -F77=mpif77 -F90=mpif90 \
--CFLAGS='-fPIC -fopenmp' \
--CXXFLAGS='-fPIC -fopenmp' \
--FFLAGS='-fPIC -fopenmp' \
--FCFLAGS='-fPIC -fopenmp' \
--F90FLAGS='-fPIC -fopenmp' \
--F77FLAGS='-fPIC -fopenmp'"
+-CFLAGS='-fPIC' \
+-CXXFLAGS='-fPIC' \
+-FFLAGS='-fPIC' \
+-FCFLAGS='-fPIC' \
+-F90FLAGS='-fPIC' \
+-F77FLAGS='-fPIC'"
 
     if [ `uname` = "Darwin" ]; then
 	try_command 3 "clean_petsc; configure; make MAKE_NP=1 PETSC_DIR=$1/<PETSC_DEFAULT> PETSC_ARCH=arch-darwin-c-opt all; make PETSC_DIR=$1/<PETSC_DEFAULT> PETSC_ARCH=arch-darwin-c-opt install"
@@ -77,105 +77,6 @@ set         BASE_PATH        $PACKAGES_DIR
 setenv      PETSC_DIR        \$BASE_PATH/petsc/mpich_<PETSC_DEFAULT>/clang-opt-superlu
 EOF
 
-    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-clang-petsc_default-vtk-trilinos-opt
-#%Module1.0#####################################################################
-##
-## Civet support module
-## <PETSC_DEFAULT>
-## <CLANG>
-## <MPICH>
-## <VTK>
-## <TRILINOS>
-##
-module load moose/.<MPICH>_clang
-module load moose/.mpich_<PETSC_DEFAULT>_opt-clang
-module load moose/.<VTK>-clang
-module load moose/.<TBB>
-module load moose/.<CPPUNIT>-clang
-module load moose/.mpich_<TRILINOS>-clang-opt
-module load ccache
-module load moose-tools
-
-EOF
-
-    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-clang-petsc_default-vtk-trilinos-dbg
-#%Module1.0#####################################################################
-##
-## Civet support module
-## <PETSC_DEFAULT>
-## <CLANG>
-## <MPICH>
-## <VTK>
-## <TRILINOS>
-##
-module load moose/.<MPICH>_clang
-module load moose/.mpich_<PETSC_DEFAULT>_opt-clang
-module load moose/.<VTK>-clang
-module load moose/.<TBB>
-module load moose/.<CPPUNIT>-clang
-module load moose/.mpich_<TRILINOS>-clang-dbg
-module load ccache
-module load moose-tools
-
-EOF
-
-    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-clang-petsc_default-trilinos-opt
-#%Module1.0#####################################################################
-##
-## Civet support module
-## <PETSC_DEFAULT>
-## <CLANG>
-## <MPICH>
-## <TRILINOS>
-##
-module load moose/.<MPICH>_clang
-module load moose/.mpich_<PETSC_DEFAULT>_opt-clang
-module load moose/.<TBB>
-module load moose/.<CPPUNIT>-clang
-module load moose/.mpich_<TRILINOS>-clang-opt
-module load ccache
-module load moose-tools
-
-EOF
-
-    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-clang-petsc_default-trilinos-dbg
-#%Module1.0#####################################################################
-##
-## Civet support module
-## <PETSC_DEFAULT>
-## <CLANG>
-## <MPICH>
-## <TRILINOS>
-##
-module load moose/.<MPICH>_clang
-module load moose/.mpich_<PETSC_DEFAULT>_opt-clang
-module load moose/.<TBB>
-module load moose/.<CPPUNIT>-clang
-module load moose/.mpich_<TRILINOS>-clang-dbg
-module load ccache
-module load moose-tools
-
-EOF
-
-    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-clang-petsc_default-vtk
-#%Module1.0#####################################################################
-##
-## Civet support module
-## <PETSC_DEFAULT>
-## <CLANG>
-## <MPICH>
-## <VTK>
-##
-module load moose/.<MPICH>_clang
-module load moose/.mpich_<PETSC_DEFAULT>_opt-clang
-module load moose/.<VTK>-clang
-module load moose/.<TBB>
-module load moose/.<CPPUNIT>-clang
-module load ccache
-module load moose-tools
-
-EOF
-
     cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-clang-petsc_default_opt
 #%Module1.0#####################################################################
 ##
@@ -186,10 +87,6 @@ EOF
 ##
 module load moose/.<MPICH>_clang
 module load moose/.mpich_<PETSC_DEFAULT>_opt-clang
-module load moose/.<TBB>
-module load moose/.<CPPUNIT>-clang
-module load ccache
-module load moose-tools
 
 EOF
 

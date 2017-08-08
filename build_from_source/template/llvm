@@ -2,7 +2,7 @@
 #############
 ## Specifics
 ##
-DEP=(modules miniconda cmake gcc)
+DEP=(modules cmake gcc)
 PACKAGE='llvm'
 
 #####
@@ -16,13 +16,13 @@ ARCH=(Darwin Linux)
 DOWNLOAD=(http://mooseframework.org/source_packages/llvm-<LLVM>.src.tar.xz http://mooseframework.org/source_packages/cfe-<LLVM>.src.tar.xz http://mooseframework.org/source_packages/clang-tools-extra-<LLVM>.src.tar.xz http://mooseframework.org/source_packages/compiler-rt-<LLVM>.src.tar.xz http://mooseframework.org/source_packages/libcxx-<LLVM>.src.tar.xz http://mooseframework.org/source_packages/libcxxabi-<LLVM>.src.tar.xz http://mooseframework.org/source_packages/openmp-<LLVM>.src.tar.xz)
 EXTRACT="false"
 CONFIGURE="false"
-BUILD='true'
-INSTALL='true'
+BUILD="false"
+INSTALL="false"
 
 pre_run() {
     if [ -d $PACKAGES_DIR/llvm-<LLVM> ]; then
-      rm -rf $PACKAGES_DIR/llvm-<LLVM>
-      rm -f $PACKAGES_DIR/Modules/<MODULES>/adv_modules/clang
+        rm -rf $PACKAGES_DIR/llvm-<LLVM>
+        rm -f $PACKAGES_DIR/Modules/<MODULES>/adv_modules/clang
     fi
 
     cd $1
@@ -31,27 +31,33 @@ pre_run() {
     # !!! NOTE: Order is important !!!
     LLVM_PACKAGES=(llvm cfe clang-tools-extra compiler-rt libcxx libcxxabi openmp)
     for LLVM_PACKAGE in ${LLVM_PACKAGES[*]}; do
-      tar -xf $DOWNLOAD_DIR/$LLVM_PACKAGE-<LLVM>.src.tar.xz -C .
-      if [ $? -ne 0 ]; then echo 'Failed to extract '$LLVM_PACKAGE; cleanup 1; fi
-      if [ $LLVM_PACKAGE = 'cfe' ]; then
-	mv $LLVM_PACKAGE-<LLVM>.src llvm/tools/clang
-      elif [ $LLVM_PACKAGE = 'clang-tools-extra' ]; then
-	mv $LLVM_PACKAGE-<LLVM>.src llvm/tools/clang/tools/extra
-      elif [ $LLVM_PACKAGE = 'llvm' ]; then
-	mv $LLVM_PACKAGE-<LLVM>.src $LLVM_PACKAGE
-      else
-	mv $LLVM_PACKAGE-<LLVM>.src llvm/projects/$LLVM_PACKAGE
-      fi
+        tar -xf $DOWNLOAD_DIR/$LLVM_PACKAGE-<LLVM>.src.tar.xz -C .
+        if [ $? -ne 0 ]; then echo 'Failed to extract '$LLVM_PACKAGE; cleanup 1; fi
+        if [ $LLVM_PACKAGE = 'cfe' ]; then
+            mv $LLVM_PACKAGE-<LLVM>.src llvm/tools/clang
+        elif [ $LLVM_PACKAGE = 'clang-tools-extra' ]; then
+            mv $LLVM_PACKAGE-<LLVM>.src llvm/tools/clang/tools/extra
+        elif [ $LLVM_PACKAGE = 'llvm' ]; then
+            mv $LLVM_PACKAGE-<LLVM>.src $LLVM_PACKAGE
+        else
+            mv $LLVM_PACKAGE-<LLVM>.src llvm/projects/$LLVM_PACKAGE
+        fi
     done
 
     mkdir $1/build; cd $1/build
     unset MODULEPATH
     source $PACKAGES_DIR/Modules/<MODULES>/init/bash
-    module load advanced_modules cmake miniconda
+
     if [ `uname` != "Darwin" ]; then
-      module load gcc
-      export CC=gcc; export CXX=g++
-      cmake -DCMAKE_C_COMPILER=$PACKAGES_DIR/<GCC>/bin/gcc \
+        # Linux machines use GCC and so we must build clang with out the libcxxabi project first.
+        # Once clang is built, we will use _that_ clang to build libcxxabi. Source:
+        # http://lists.llvm.org/pipermail/llvm-dev/2014-September/076741.html
+
+        module load advanced_modules cmake gcc
+        export CC=gcc; export CXX=g++
+        mv $1/llvm/projects/libcxxabi $1/
+
+        cmake -DCMAKE_C_COMPILER=$PACKAGES_DIR/<GCC>/bin/gcc \
 -DCMAKE_CXX_COMPILER=$PACKAGES_DIR/<GCC>/bin/g++ \
 -DGCC_INSTALL_PREFIX=$PACKAGES_DIR/<GCC> \
 -DCMAKE_CXX_LINK_FLAGS="-L$PACKAGES_DIR/<GCC>/lib64 -Wl,-rpath,$PACKAGES_DIR/<GCC>/lib64" \
@@ -62,13 +68,43 @@ pre_run() {
 -DPYTHON_EXECUTABLE=`which python2.7` \
 -DLLVM_TARGETS_TO_BUILD="X86" \
 ../llvm
+
+        if [ $? -ne 0 ]; then echo "Failed to configure $PACKAGE"; cleanup 1; fi
+        make -j $MOOSE_JOBS
+
+        if [ $? -ne 0 ]; then echo "Failed to build $PACKAGE"; cleanup 1; fi
+        make install
+
+        # Clean up this directory to avoid strangeness with lingering cmake files
+        rm -rf $1/build
+
+        # Move into position to build libcxxabi
+        mkdir $1/build-libcxxabi; cd $1/build-libcxxabi
+
+        # Attempt to configure using the compiler we just built to build libcxxabi
+        PATH=$PACKAGES_DIR/llvm-<LLVM>/bin:$PATH CC=clang CXX=clang++ cmake -DCMAKE_INSTALL_PREFIX=$PACKAGES_DIR/llvm-<LLVM> ../libcxxabi
+
+        if [ $? -ne 0 ]; then echo "Failed to configure $PACKAGE"; cleanup 1; fi
+        make -j $MOOSE_JOBS
+
+        if [ $? -ne 0 ]; then echo "Failed to build $PACKAGE"; cleanup 1; fi        
+        make install
+
     else
-      cmake -DCMAKE_INSTALL_PREFIX=$PACKAGES_DIR/llvm-<LLVM> \
+        # When building on Darwin machines, clang is the default compiler available
+        # on the system, so we do not need to build libcxxabi separately.
+        echo "preparing to cmake... darwin"
+        cmake -DCMAKE_INSTALL_PREFIX=$PACKAGES_DIR/llvm-<LLVM> \
 -DLLVM_BUILD_EXTERNAL_COMPILER_RT=ON \
 -DCLANG_DEFAULT_OPENMP_RUNTIME=libomp \
 -DPYTHON_EXECUTABLE=`which python2.7` \
 -DCMAKE_BUILD_TYPE="Release" \
 ../llvm
+        if [ $? -ne 0 ]; then echo "Failed to configure $PACKAGE"; cleanup 1; fi
+        make -j $MOOSE_JOBS
+
+        if [ $? -ne 0 ]; then echo "Failed to build $PACKAGE"; cleanup 1; fi
+        make install
     fi
     cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/modulefiles/moose/.<CLANG>
 #%Module1.0#####################################################################
@@ -112,13 +148,13 @@ EOF
 post_run() {
     cd $PACKAGES_DIR/Modules/<MODULES>/adv_modules
     if [ -f $PACKAGES_DIR/Modules/<MODULES>/adv_modules/clang ]; then
-	rm -f clang
+        rm -f clang
     fi
     ln -s ../modulefiles/moose/.<CLANG> clang
     if [ `uname` = "Darwin" ]; then
-	# Because DYLD_LIBRARY_PATH no longer exists, we have to modify
-	# rpaths in all the llvm libraries to be absolute paths
-	cat <<'EOF' > $PACKAGES_DIR/llvm-<LLVM>/lib/change_links.sh
+        # Because DYLD_LIBRARY_PATH no longer exists, we have to modify
+        # rpaths in all the llvm libraries to be absolute paths
+        cat <<'EOF' > $PACKAGES_DIR/llvm-<LLVM>/lib/change_links.sh
 #!/bin/bash
 for sfile in `ls | grep dylib`; do
   if ! [ -L $sfile ]; then
@@ -139,11 +175,11 @@ for sfile in `ls | grep dylib`; do
   fi
 done
 EOF
-	  cd $PACKAGES_DIR/llvm-<LLVM>/lib/
-	  sh change_links.sh
-	  rm -f change_links.sh
-	  cd /usr/local/lib
-	  ln -s $PACKAGES_DIR/llvm-<LLVM>/lib/libomp.dyld .
+          cd $PACKAGES_DIR/llvm-<LLVM>/lib/
+          sh change_links.sh
+          rm -f change_links.sh
+          cd /usr/local/lib
+          ln -s $PACKAGES_DIR/llvm-<LLVM>/lib/libomp.dyld .
     fi
     cp -R $1/llvm/tools/clang/bindings $PACKAGES_DIR/llvm-<LLVM>/
 }

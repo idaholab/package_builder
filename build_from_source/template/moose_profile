@@ -37,11 +37,6 @@ source $PACKAGES_DIR/Modules/<MODULES>/init/bash
 # MOOSE_PPS_WIDTH
 export MOOSE_PPS_WIDTH=180
 
-# Source the autojump profile if requested:
-if [ -n "\$MOOSE_JUMP" ]; then
-  source $PACKAGES_DIR/environments/autojump_profile
-fi
-
 # If, anyone wants to use our prompt:
 if [ -n "\$MOOSE_PROMPT" ]; then
   PS1="\[\033[1;34m\][\u]\[\033[1;32m\][\w]\[\033[0m\]> "
@@ -50,16 +45,15 @@ fi
 # Set MOOSE_JOBS and Load appropiate modules for Arch
 if [ \`uname -s\` == 'Darwin' ]; then
   export MOOSE_JOBS=\`/usr/sbin/sysctl -n hw.ncpu\`
-  module load moose-dev-clang moose-tools
+  module load moose-dev-clang
 else
   export MOOSE_JOBS=\`cat /proc/cpuinfo | grep processor | wc -l\`
-  module load moose-dev-gcc moose-tools
+  module load moose-dev-gcc
 fi
 
-# Load custom MOOSE command bash autocomplete rules
-source $PACKAGES_DIR/environments/autocomplete_moose
 EOF
 }
+
 ##
 ## End Specifics
 ##############

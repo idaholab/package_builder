@@ -1,6 +1,5 @@
 #!/usr/bin/env python2.7
 import os, sys, argparse, platform, re, hashlib, urllib2, tarfile, tempfile, subprocess, time, datetime
-from timeit import default_timer as clock
 from signal import SIGTERM
 from contrib import dag
 from contrib import scheduler
@@ -16,14 +15,9 @@ class Job(object):
         self.name = name
         self.process = None
         self.__output = ''
-        self.__caveats = set([])
-        self.status_done = False
-        self.start_time = None
-        self.end_time = None
         self.serial = False
 
     def run(self):
-        self.start_time = clock()
         t = tempfile.TemporaryFile()
 
         # Very strange behavior with threading and subprocess not returning the process
@@ -32,13 +26,8 @@ class Job(object):
             self.process = subprocess.Popen([self.package_file], stdout=t, stderr=t)
 
         self.process.wait()
-        self.end_time = clock()
         t.seek(0)
         self.__output = t.read()
-        self.status_done = True
-
-    def getConcurrentModules(self):
-        return self.args.max_modules
 
     def killJob(self):
         # Attempt to kill a running Popen process
@@ -51,18 +40,6 @@ class Job(object):
                     os.killpg(pgid, SIGTERM)
             except OSError: # Process already terminated
                 pass
-
-    def addCaveat(self, caveat):
-        self.__caveats.add(caveat)
-
-    def getCaveats(self):
-        if self.__caveats:
-            return ', '.join(self.__caveats)
-        return ''
-
-    def getTime(self):
-        if self.start_time and self.end_time:
-            return '%0.0fs' % float(self.end_time - self.start_time)
 
     def getResult(self):
         if self.process.poll():

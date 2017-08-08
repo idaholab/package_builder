@@ -77,105 +77,6 @@ set         BASE_PATH        $PACKAGES_DIR
 setenv      PETSC_DIR        \$BASE_PATH/petsc/mpich_<PETSC_DEFAULT>/gcc-opt-superlu
 EOF
 
-    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-gcc-petsc_default-vtk-trilinos-opt
-#%Module1.0#####################################################################
-##
-## Civet support module
-## <PETSC_DEFAULT>
-## <GCC>
-## <MPICH>
-## <VTK>
-## <TRILINOS>
-##
-module load moose/.<MPICH>_gcc
-module load moose/.mpich_<PETSC_DEFAULT>_opt-gcc
-module load moose/.<VTK>-gcc
-module load moose/.<TBB>
-module load moose/.<CPPUNIT>-gcc
-module load moose/.mpich_<TRILINOS>-gcc-opt
-module load ccache
-module load moose-tools
-
-EOF
-
-    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-gcc-petsc_default-vtk-trilinos-dbg
-#%Module1.0#####################################################################
-##
-## Civet support module
-## <PETSC_DEFAULT>
-## <GCC>
-## <MPICH>
-## <VTK>
-## <TRILINOS>
-##
-module load moose/.<MPICH>_gcc
-module load moose/.mpich_<PETSC_DEFAULT>_opt-gcc
-module load moose/.<VTK>-gcc
-module load moose/.<TBB>
-module load moose/.<CPPUNIT>-gcc
-module load moose/.mpich_<TRILINOS>-gcc-dbg
-module load ccache
-module load moose-tools
-
-EOF
-
-    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-gcc-petsc_default-trilinos-opt
-#%Module1.0#####################################################################
-##
-## Civet support module
-## <PETSC_DEFAULT>
-## <GCC>
-## <MPICH>
-## <TRILINOS>
-##
-module load moose/.<MPICH>_gcc
-module load moose/.mpich_<PETSC_DEFAULT>_opt-gcc
-module load moose/.<TBB>
-module load moose/.<CPPUNIT>-gcc
-module load moose/.mpich_<TRILINOS>-gcc-opt
-module load ccache
-module load moose-tools
-
-EOF
-
-    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-gcc-petsc_default-trilinos-dbg
-#%Module1.0#####################################################################
-##
-## Civet support module
-## <PETSC_DEFAULT>
-## <GCC>
-## <MPICH>
-## <TRILINOS>
-##
-module load moose/.<MPICH>_gcc
-module load moose/.mpich_<PETSC_DEFAULT>_opt-gcc
-module load moose/.<TBB>
-module load moose/.<CPPUNIT>-gcc
-module load moose/.mpich_<TRILINOS>-gcc-dbg
-module load ccache
-module load moose-tools
-
-EOF
-
-    cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-gcc-petsc_default-vtk
-#%Module1.0#####################################################################
-##
-## Civet support module
-## <PETSC_DEFAULT>
-## <GCC>
-## <MPICH>
-## <VTK>
-##
-module load moose/.<MPICH>_gcc
-module load moose/.mpich_<PETSC_DEFAULT>_opt-gcc
-module load moose/.<VTK>-gcc
-module load moose/.<TBB>
-module load moose/.<CPPUNIT>-gcc
-module load ccache
-module load moose-tools
-
-EOF
-
     cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/civet/mpich-gcc-petsc_default_opt
 #%Module1.0#####################################################################
 ##
@@ -186,10 +87,6 @@ EOF
 ##
 module load moose/.<MPICH>_gcc
 module load moose/.mpich_<PETSC_DEFAULT>_opt-gcc
-module load moose/.<TBB>
-module load moose/.<CPPUNIT>-gcc
-module load ccache
-module load moose-tools
 
 EOF
 
