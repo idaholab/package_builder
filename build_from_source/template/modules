@@ -109,7 +109,7 @@ set             BASE_PATH       "$PACKAGES_DIR"
 if { [uname sysname] != "Darwin" } {
   prepend-path  LD_LIBRARY_PATH  "\$BASE_PATH/seacas/lib"
 }
-prepend-path    PATH            "\$BASE_PATH/seacas/bin:$BASE_PATH/seacas/etc"
+prepend-path    PATH            "\$BASE_PATH/seacas/bin:\$BASE_PATH/seacas/etc"
 prepend-path    MANPATH         "\$BASE_PATH/seacas/share/man"
 setenv          ACCESS          "\$BASE_PATH/seacas"
 
@@ -146,7 +146,7 @@ set             BASE_PATH       "$PACKAGES_DIR"
 if { [uname sysname] != "Darwin" } {
   prepend-path  LD_LIBRARY_PATH  "\$BASE_PATH/seacas/lib"
 }
-prepend-path    PATH            "\$BASE_PATH/seacas/bin:$BASE_PATH/seacas/etc"
+prepend-path    PATH            "\$BASE_PATH/seacas/bin:\$BASE_PATH/seacas/etc"
 prepend-path    MANPATH         "\$BASE_PATH/seacas/share/man"
 setenv          ACCESS          "\$BASE_PATH/seacas"
 

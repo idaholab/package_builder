@@ -27,9 +27,18 @@ Requires: gcc gcc-c++ make freeglut-devel m4 blas-devel lapack-devel <REQUIREMEN
 BuildRoot: %{_tmppath}/%{name}-build
 AutoReqProv: no
 
+# Prevent debug package from being created
 %define debug_package %{nil}
 %define __strip /bin/true
+
+# Disable debug symbol stripping
 %define __spec_install_port /usr/lib/rpm/brp-compress
+
+# Disable binary stripping
+%define __os_install_post %{nil}
+
+# Prevent check-buildroot from running. We do not need it.
+%define __arch_install_post /usr/lib/rpm/check-rpaths
 
 %description
 This package contains the neccessary libraries/binaries to utilize the MOOSE framework and assocaited applications.
@@ -41,7 +50,8 @@ This package contains the neccessary libraries/binaries to utilize the MOOSE fra
 
 
 %install
-install -d %{buildroot}/<PACKAGES_BASENAME>
+export QA_SKIP_RPATHS=true
+mkdir -p %{buildroot}/<PACKAGES_BASENAME>
 mv -f <PACKAGES_PARENT> %{buildroot}/<PACKAGES_BASENAME>/
 
 %post
