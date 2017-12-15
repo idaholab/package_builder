@@ -8,7 +8,9 @@ PACKAGE="<BLASLAPACK>"
 #####
 # Set the operating system allowed to build this module
 #
-ARCH=(Darwin Linux)
+# Do not build this module, but keep it in the build system, we
+# might need it one day.
+ARCH=()
 
 #####
 # Setting any of these variables to 'false' effectively skips that step
