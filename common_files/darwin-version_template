@@ -1,4 +1,4 @@
-MPICH=mpich-3.2
+MPICH=mpich-3.2.1
 OPENMPI=openmpi-1.10.2
 PETSC_DEFAULT=petsc-3.7.6
 PETSC_ALT=petsc-3.6.4
