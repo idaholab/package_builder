@@ -203,6 +203,9 @@ EOF
 
     cd "$PACKAGES_DIR/Modules/3.2.10/mpich_clang; rm <TRILINOS>-dbg"
     ln -s ../modulefiles/moose/.<MPICH>_<CLANG>_<TRILINOS>-dbg <TRILINOS>-dbg
+
+    TRILINOS_INCLUDE="$PACKAGES_DIR/<TRILINOS>/<MPICH>_<CLANG>-dbg/include"
+    sed -i.orig "s^-I$TRILINOS_INCLUDE^-isystem $TRILINOS_INCLUDE^g" "$TRILINOS_INCLUDE/Makefile.export.Trilinos"
 }
 ##
 ## End Specifics
