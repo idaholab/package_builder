@@ -9,7 +9,7 @@ NO_CCACHE='true'
 #####
 # Set the operating system allowed to build this module
 #
-ARCH=(Darwin)
+ARCH=(Darwin Linux)
 
 #####
 # Setting any of these variables to 'false' effectively skips that step
@@ -25,7 +25,8 @@ pre_run() {
         echo "$PACKAGE not supported on High Sierra..."
         cleanup 0
     fi
-    cat << 'EOF' > darwin.patch
+    if [ `uname` = "Darwin" ]; then
+        cat << 'EOF' > darwin.patch
 diff -ruN a/coregrind/m_syscall.c b/coregrind/m_syscall.c
 --- a/coregrind/m_syscall.c	2016-10-21 04:37:39.000000000 -0600
 +++ b/coregrind/m_syscall.c	2016-10-31 10:02:39.000000000 -0600
@@ -61,10 +62,15 @@ diff -ruN a/coregrind/vg_preloaded.c b/coregrind/vg_preloaded.c
  #if defined(VGO_linux) || defined(VGO_solaris)
 EOF
     patch -p1 < darwin.patch
+    fi
     unset MODULEPATH
     source $PACKAGES_DIR/Modules/<MODULES>/init/bash
     module load advanced_modules autotools moose/.<MPICH>_<GCC>
-    CONFIGURE='./configure --prefix=$PACKAGES_DIR/<VALGRIND> --disable-dependency-tracking --enable-only64bit --build=amd64-darwin'
+    if [ `uname` = "Darwin" ]; then
+       CONFIGURE='./configure --prefix=$PACKAGES_DIR/<VALGRIND> --disable-dependency-tracking --enable-only64bit --build=amd64-darwin'
+    else
+       CONFIGURE='./configure --prefix=$PACKAGES_DIR/<VALGRIND> --disable-dependency-tracking --enable-only64bit --with-mpicc=mpicc'
+    fi
 }
 post_run() {
     cat <<EOF > $PACKAGES_DIR/Modules/<MODULES>/adv_modules/valgrind
