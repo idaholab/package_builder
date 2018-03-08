@@ -27,3 +27,4 @@ TRILINOS=trilinos-release-12-6-2
 DTK=2.0.0
 GITLFS=git-lfs-linux-amd64-1.4.3
 BLASLAPACK=lapack-3.7.1
+VALGRIND=valgrind-3.13.0
