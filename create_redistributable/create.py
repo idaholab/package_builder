@@ -264,6 +264,7 @@ Class for building Macintosh Packages
             tmp_file.seek(0)
             xml_string = xml_string.replace('<TEMP_DIR>', os.path.join(self.temp_dir, 'pkg/OSX'))
             xml_string = xml_string.replace('<MAC_VERSION>', self.args.version)
+            xml_string = xml_string.replace('<MAC_VERSION_NUM>', self.args.version_num)
             xml_string = xml_string.replace('<REDISTRIBUTABLE_FILE>', self.redistributable_name)
             tmp_file.write(xml_string)
 
@@ -375,6 +376,7 @@ def machineArch():
       for osx_version, version_name in _mac_version_to_name.iteritems():
         if mac_version.find(osx_version) != -1:
           version = _mac_version_to_name[osx_version]
+          version_num = osx_version
           break
 
       if version == None:
@@ -383,6 +385,7 @@ def machineArch():
 
   # Linux Specific
   else:
+    version_num = None
     try:
       lsb_release_process = subprocess.Popen(['lsb_release', '-a'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except:
@@ -405,10 +408,10 @@ def machineArch():
         print fail_message
         sys.exit(1)
 
-  return (uname, arch, version, release)
+  return (uname, arch, version, release, version_num)
 
 def verifyArgs(args):
-  (args.uname, args.arch, args.version, args.release) = machineArch()
+  (args.uname, args.arch, args.version, args.release, args.version_num) = machineArch()
   fail = False
 
   # Try to determine package type, unless provided by the user

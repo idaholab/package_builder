@@ -242,6 +242,22 @@ def prepareDownloads(download_directory):
     if os.path.exists(os.path.join(download_directory, '.LOCKS')):
         shutil.rmtree(os.path.join(download_directory, '.LOCKS'))
 
+def notEnough(prefix):
+    drive_stats = os.statvfs(prefix)
+    available = drive_stats.f_frsize * drive_stats.f_bavail
+    suffixes = [("TB", 12), ("GB", 9), ("MB", 6), ("KB", 3), ("Bytes", 0)]
+    multiplier = 1 << 40;
+    index = 0
+    while available < multiplier and multiplier > 1:
+        multiplier = multiplier >> 10
+        index = index + 1
+
+    # This is 30GB
+    if drive_stats.f_frsize * drive_stats.f_bavail < 30*1024*1024*1024:
+        print 'Available space:', '.'.join([str(available)[:-suffixes[index][1]],
+                                            str(available)[suffixes[index][1]]]), suffixes[index][0]
+        return True
+
 if __name__ == '__main__':
     # Pre-requirements that we are aware of that on some linux machines is not sometimes available by default:
     prereqs = ['bison', 'flex', 'git', 'curl', 'make', 'patch', 'bzip2', 'uniq']
@@ -265,6 +281,13 @@ if __name__ == '__main__':
                           ('CODESIGN_NAME', args.code_sign_name),
                           ('CODESIGN_CERT', args.code_sign_cert),
                           ('WITH_INTEL', str(args.with_intel64))]
+
+    if not args.dryrun \
+       and not args.build_only \
+       and args.prefix \
+       and notEnough(args.prefix):
+        print 'The entire package building process consumes up to 30Gb of free space.\nNot enough free space in: %s' % (args.prefix)
+        sys.exit(1)
 
     templates = getTemplate(args)
     packages_path = alterVersions(templates, args)
