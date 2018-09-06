@@ -333,6 +333,6 @@ if __name__ == '__main__':
         print '\nDownloads saved to: %s' %(os.path.join(args.temp_dir, 'moose_package_download_temp'))
     else:
         with open(os.path.join(args.prefix, 'build'), 'w') as build_file:
-            build_file.write("BUILD_DATE:%s\nREPO_HASH:%s" % (build_date, build_hash))
+            build_file.write("BUILD_DATE:%s\nPACKAGE_BUILDER_HASH:%s" % (build_date, build_hash))
 
     print 'Total Time:', str(datetime.timedelta(seconds=int(time.time()) - int(start_time)))
