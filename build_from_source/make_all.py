@@ -266,12 +266,16 @@ def notEnough(prefix):
         return True
 
 def getDateAndHash():
-    git_hash = subprocess.Popen(["git", "rev-parse", "HEAD"], stdout=subprocess.PIPE)
+    if os.getenv('CIVET_HEAD_SHA'):
+        hash_version = os.getenv('CIVET_HEAD_SHA')
+    else:
+        git_hash = subprocess.Popen(["git", "rev-parse", "HEAD"], stdout=subprocess.PIPE)
+        hash_version = git_hash.communicate()[0]
+        if git_hash.poll() != 0:
+            print 'Failed to identify hash of package_builder repository'
+            sys.exit(1)
+
     date_time = datetime.datetime.now().strftime("%Y%m%d")
-    hash_version = git_hash.communicate()[0]
-    if git_hash.poll() != 0:
-        print 'Failed to identify hash of package_builder repository'
-        sys.exit(1)
     return (date_time, hash_version)
 
 if __name__ == '__main__':
