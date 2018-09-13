@@ -115,9 +115,20 @@ build_bootstrapper()
           -Wno-dev \
           ../llvm/projects/libcxx
         if [ $? -ne 0 ]; then echo 'Failed to configure llvm/libcxx bootstrap'; cleanup 1; fi
-        make cxx -j $MOOSE_JOBS
+        make -j $MOOSE_JOBS
         if [ $? -ne 0 ]; then echo 'Failed to build llvm/libcxx bootstrap'; cleanup 1; fi
-        make cxx install -j $MOOSE_JOBS
+        make install -j $MOOSE_JOBS
+        # Clean libcxx cmake config and re-config/re-build for libcxxabi
+        rm -rf "$1/boot_libcxx/build/"*
+        CC=clang CXX=clang++ cmake -G "Unix Makefiles" \
+          -DCMAKE_BUILD_TYPE="Release" \
+          -DCMAKE_INSTALL_PREFIX="$1/clang-bootstrap" \
+          -Wno-dev \
+          ../llvm/projects/libcxxabi
+        if [ $? -ne 0 ]; then echo 'Failed to configure llvm/libcxxabi bootstrap'; cleanup 1; fi
+        make -j $MOOSE_JOBS
+        if [ $? -ne 0 ]; then echo 'Failed to build llvm/libcxxabi bootstrap'; cleanup 1; fi
+        make install -j $MOOSE_JOBS
     fi
 }
 
@@ -140,16 +151,13 @@ pre_run() {
     mkdir "$1/build"; cd "$1/build"
     if [ `uname` != "Darwin" ]; then
         CC=clang CXX=clang++ cmake -DCMAKE_INSTALL_PREFIX="$PACKAGES_DIR/$PACKAGE" \
-          -DCMAKE_INSTALL_RPATH:STRING="$PACKAGES_DIR/$PACKAGE/lib" \
-          -DBUILD_SHARED_LIBS="ON" \
-          -DLLVM_ENABLE_CXX1Y="ON" \
-          -DCMAKE_BUILD_WITH_INSTALL_RPATH="1" \
-          -DCLANG_DEFAULT_CXX_STDLIB="libc++" \
-          -DCMAKE_BUILD_WITH_INSTALL_RPATH=1 \
           -DCMAKE_BUILD_TYPE="Release" \
+          -DBUILD_SHARED_LIBS="ON" \
+          -DCMAKE_BUILD_WITH_INSTALL_RPATH="1" \
+          -DCMAKE_BUILD_WITH_INSTALL_RPATH=1 \
+          -DCLANG_DEFAULT_CXX_STDLIB="libc++" \
           -DPYTHON_EXECUTABLE=`which python2.7` \
           -DLLVM_TARGETS_TO_BUILD="X86" \
-          -Wno-dev \
           ../llvm
     else
       # check if we are code signing LLDB
