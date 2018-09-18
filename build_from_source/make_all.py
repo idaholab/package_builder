@@ -266,12 +266,16 @@ def notEnough(prefix):
         return True
 
 def getDateAndHash():
-    git_hash = subprocess.Popen(["git", "rev-parse", "HEAD"], stdout=subprocess.PIPE)
+    if os.getenv('CIVET_HEAD_SHA'):
+        hash_version = os.getenv('CIVET_HEAD_SHA')
+    else:
+        git_hash = subprocess.Popen(["git", "rev-parse", "HEAD"], stdout=subprocess.PIPE)
+        hash_version = git_hash.communicate()[0]
+        if git_hash.poll() != 0:
+            print 'Failed to identify hash of package_builder repository'
+            sys.exit(1)
+
     date_time = datetime.datetime.now().strftime("%Y%m%d")
-    hash_version = git_hash.communicate()[0]
-    if git_hash.poll() != 0:
-        print 'Failed to identify hash of package_builder repository'
-        sys.exit(1)
     return (date_time, hash_version)
 
 if __name__ == '__main__':
@@ -333,6 +337,6 @@ if __name__ == '__main__':
         print '\nDownloads saved to: %s' %(os.path.join(args.temp_dir, 'moose_package_download_temp'))
     else:
         with open(os.path.join(args.prefix, 'build'), 'w') as build_file:
-            build_file.write("BUILD_DATE:%s\nREPO_HASH:%s" % (build_date, build_hash))
+            build_file.write("BUILD_DATE:%s\nPACKAGE_BUILDER_HASH:%s" % (build_date, build_hash))
 
     print 'Total Time:', str(datetime.timedelta(seconds=int(time.time()) - int(start_time)))
