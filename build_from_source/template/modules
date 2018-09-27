@@ -64,8 +64,6 @@ EOF
 conflict moose-dev-clang-alt moose-dev-gcc moose-dev-gcc-alt
 module load moose/.<MPICH>_<CLANG>
 module load moose/.<PETSC_DEFAULT>_<MPICH>_<CLANG>-opt
-module load moose/.<TBB>
-module load moose/.<CPPUNIT>_<CLANG>
 
 # If MOOSE_DIR is set, help the user out by prepending the moose/python path
 if { [ info exists ::env(MOOSE_DIR) ] } {
@@ -85,8 +83,6 @@ EOF
 conflict moose-dev-gcc-alt moose-dev-clang moose-dev-clang-alt
 module load moose/.<MPICH>_<GCC>
 module load moose/.<PETSC_DEFAULT>_<MPICH>_<GCC>-opt
-module load moose/.<TBB>
-module load moose/.<CPPUNIT>_<GCC>
 
 # If MOOSE_DIR is set, help the user out by prepending the moose/python path
 if { [ info exists ::env(MOOSE_DIR) ] } {

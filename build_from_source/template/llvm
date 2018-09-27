@@ -71,6 +71,9 @@ custom_extract()
 
 build_bootstrapper()
 {
+    # Only build the bootstrapper for Darwin targets
+    if [ `uname` != 'Darwin' ]; then return; fi
+
     # Build bootstrap-clang
     mkdir "$1/boot_clang"; cd "$1/boot_clang"
     if [ `uname` = "Darwin" ]; then
@@ -145,16 +148,18 @@ pre_run() {
     mkdir "$1/build"; cd "$1/build"
 
     if [ `uname` != "Darwin" ]; then
-        CC=clang CXX=clang++ cmake -DCMAKE_INSTALL_PREFIX="$PACKAGES_DIR/$PACKAGE" \
+        CC=gcc CXX=g++ cmake -DCMAKE_C_COMPILER="$PACKAGES_DIR/<GCC>/bin/gcc" \
+          -DCMAKE_CXX_COMPILER="$PACKAGES_DIR/<GCC>/bin/g++" \
+          -DGCC_INSTALL_PREFIX="$PACKAGES_DIR/<GCC>" \
+          -DCMAKE_CXX_LINK_FLAGS="-L$PACKAGES_DIR/<GCC>/lib64 -Wl,-rpath,$PACKAGES_DIR/<GCC>/lib64" \
+          -DCMAKE_INSTALL_PREFIX="$PACKAGES_DIR/$PACKAGE" \
           -DCMAKE_INSTALL_RPATH:STRING="$PACKAGES_DIR/$PACKAGE/lib" \
-          -DCMAKE_BUILD_WITH_INSTALL_RPATH="1" \
-          -DCLANG_DEFAULT_CXX_STDLIB="libc++" \
-          -DLLVM_ENABLE_LIBCXX="ON" \
           -DCMAKE_BUILD_WITH_INSTALL_RPATH=1 \
-          -DLLVM_ENABLE_ASSERTIONS="ON" \
-          -DLLVM_ENABLE_RTTI="ON" \
+          -DLLVM_ENABLE_ASSERTIONS=ON \
+          -DLLVM_ENABLE_RTTI=ON \
           -DCMAKE_BUILD_TYPE="Release" \
           -DPYTHON_EXECUTABLE=`which python2.7` \
+          -DLLDB_DISABLE_PYTHON=0 \
           -DLLVM_TARGETS_TO_BUILD="X86" \
           -Wno-dev \
           ../llvm
