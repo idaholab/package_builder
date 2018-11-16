@@ -23,23 +23,6 @@ INSTALL='false'
 clean_petsc() {
     clean_attempt
     extract
-    # Fix for darwin Fortran linking issue:
-    if [ `uname` = "Darwin" ]; then
-        cat << "EOF" > petsc_darwin.patch
---- config/BuildSystem/config/libraries.py	2017-04-24 07:46:27.000000000 -0600
-+++ config/BuildSystem/config/libraries.py	2017-10-25 15:59:23.000000000 -0600
-@@ -51,7 +51,7 @@
-         flagSubst = self.language[-1].upper()+'_LINKER_SLFLAG'
-         dirname   = os.path.dirname(library).replace('\\ ',' ').replace(' ', '\\ ').replace('\\(','(').replace('(', '\\(').replace('\\)',')').replace(')', '\\)')
-         if dirname.startswith('/Applications/Xcode.app') or dirname.startswith('/Library/Developer/CommandLineTools/usr/lib'): with_rpath = None
--        if with_rpath:
-+        if False:
-           if hasattr(self.setCompilers, flagName) and not getattr(self.setCompilers, flagName) is None:
-             return [getattr(self.setCompilers, flagName)+dirname,'-L'+dirname,'-l'+name]
-           if flagSubst in self.argDB:
-EOF
-        patch -p0 < petsc_darwin.patch
-    fi
 }
 
 pre_run() {
