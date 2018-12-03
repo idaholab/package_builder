@@ -34,7 +34,7 @@ pre_run() {
     fi
     PATH="$PACKAGES_DIR/$PACKAGE/bin:$PATH" conda config --set ssl_verify false
     try_command 5 "PATH=$PACKAGES_DIR/$PACKAGE/bin:$PATH conda update conda --yes"
-    try_command 5 "PATH=$PACKAGES_DIR/$PACKAGE/bin:$PATH conda install -c idaholab python=2.7 coverage reportlab mako numpy scipy scikit-learn h5py hdf5 scikit-image requests vtk=7.1.0 pyyaml matplotlib pip lxml pyflakes pandas conda-build mock yaml pyqt swig --yes"
+    try_command 5 "PATH=$PACKAGES_DIR/$PACKAGE/bin:$PATH conda install -c idaholab python=2.7 coverage reportlab mako numpy scipy scikit-learn h5py hdf5 scikit-image requests vtk=7.1.0 pyyaml matplotlib pip lxml pyflakes pandas conda-build mock yaml pyqt=5.9.2 qt=5.9.6 swig --yes"
     sed -i -e 's/^@deprecated/#@deprecated/' "$PACKAGES_DIR/$PACKAGE/lib/python2.7/site-packages/skimage/measure/_structural_similarity.py"
     PATH="$PACKAGES_DIR/$PACKAGE/bin:$PATH" conda config --set ssl_verify true
 }
