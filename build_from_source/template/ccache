@@ -35,14 +35,8 @@ set              BASE_PATH        "$PACKAGES_DIR"
 prepend-path     PATH               "\$BASE_PATH/<CCACHE>/bin"
 prepend-path     MANPATH            "\$BASE_PATH/<CCACHE>/share/man"
 
-if {[is-loaded moose/.<GCC>] || [is-loaded <GCC>]} {
-  setenv           CC                 "ccache gcc"
-  setenv           CXX                "ccache g++"
-}
-if {[is-loaded moose/.<CLANG>] || [is-loaded <CLANG>]} {
-  setenv           CC                 "ccache clang"
-  setenv           CXX                "ccache clang++"
-}
+setenv           CC                 "ccache mpicc"
+setenv           CXX                "ccache mpicxx"
 
 setenv           CCACHE_SLOPPINESS  "time_macros" 
 EOF
