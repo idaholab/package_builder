@@ -79,7 +79,7 @@ post_run() {
     make install
     if [ $? -ne 0 ]; then echo 'Failed to install icecream'; cleanup 1; fi
     if [ `uname` = "Darwin" ]; then
-        PATH="$PACKAGES_DIR/icecream/bin:$PATH" icecc-create-env --clang "$PACKAGES_DIR/llvm-<LLVM>/bin/clang"
+        PATH="$PACKAGES_DIR/icecream/bin:$PATH" icecc-create-env --clang "$PACKAGES_DIR/llvm-<LLVM>/bin/clang" "$PACKAGES_DIR/llvm-<LLVM>/bin/clang++"
         if [ $? -ne 0 ]; then echo 'Failed to create LLVM Icecream payload'; cleanup 1; fi
         mv *.tar.gz "$PACKAGES_DIR/$PACKAGE/clang_<LLVM>.tar.gz"
     else
